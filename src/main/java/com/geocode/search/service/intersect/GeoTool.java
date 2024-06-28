@@ -23,230 +23,230 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 public class GeoTool {
 
-    private static SimpleFeatureSource source;
-    private static SimpleFeatureType schema;
-    private static final Vector<SimpleFeatureSource> cachedSourceVect = new Vector<>();
-    private static final Vector<SimpleFeatureType> schemaVect = new Vector<>();
+	private static SimpleFeatureSource source;
+	private static SimpleFeatureType schema;
+	private static final Vector<SimpleFeatureSource> cachedSourceVect = new Vector<>();
+	private static final Vector<SimpleFeatureType> schemaVect = new Vector<>();
 
-    public static SimpleFeatureSource getSource() {
-        return source;
-    }
+	public static SimpleFeatureSource getSource() {
+		return source;
+	}
 
-    public static void setSource(SimpleFeatureSource source) {
-        GeoTool.source = source;
-    }
+	public static void setSource(SimpleFeatureSource source) {
+		GeoTool.source = source;
+	}
 
-    public static SimpleFeatureType getSchema() {
-        return schema;
-    }
+	public static SimpleFeatureType getSchema() {
+		return schema;
+	}
 
-    public static void setSchema(SimpleFeatureType schema) {
-        GeoTool.schema = schema;
-    }
+	public static void setSchema(SimpleFeatureType schema) {
+		GeoTool.schema = schema;
+	}
 
-    public static Vector<SimpleFeatureSource> getCachedSourceVect() {
-        return cachedSourceVect;
-    }
+	public static Vector<SimpleFeatureSource> getCachedSourceVect() {
+		return cachedSourceVect;
+	}
 
-    public static Vector<SimpleFeatureType> getSchemaVect() {
-        return schemaVect;
-    }
+	public static Vector<SimpleFeatureType> getSchemaVect() {
+		return schemaVect;
+	}
 
-    public GeoTool() {}
+	public GeoTool() {}
 
-    /**
-     * Constructor
-     * @param fileName shapefile name
-     * @param activeCache cache enable flag
-     */
-    public GeoTool(String fileName, String activeCache) {
+	/**
+	 * Constructor
+	 * @param fileName shapefile name
+	 * @param activeCache cache enable flag
+	 */
+	public GeoTool(String fileName, String activeCache) {
 
-        File file = new File(fileName);
-        try {
-            System.out.println("- Start upload shapefile " + file.getName() + ": "
-                    + Calendar.getInstance().getTime());
-            FileDataStore myData = FileDataStoreFinder.getDataStore(file);
-            source = myData.getFeatureSource();
-            schema = source.getSchema();
+		File file = new File(fileName);
+		try {
+			System.out.println("- Start upload shapefile " + file.getName() + ": "
+					+ Calendar.getInstance().getTime());
+			FileDataStore myData = FileDataStoreFinder.getDataStore(file);
+			source = myData.getFeatureSource();
+			schema = source.getSchema();
 
-            if (activeCache.equalsIgnoreCase("S") || activeCache.equalsIgnoreCase("Y")) {
-                cachedSourceVect.add(DataUtilities.source(new SpatialIndexFeatureCollection(source.getFeatures())));
-                schemaVect.add(schema);
-            } else {
-                cachedSourceVect.add(source);
-                schemaVect.add(schema);
-            }
-            System.out.println("- End upload shapefile " + file.getName() + ": "
-                    + Calendar.getInstance().getTime());
+			if (activeCache.equalsIgnoreCase("S") || activeCache.equalsIgnoreCase("Y")) {
+				cachedSourceVect.add(DataUtilities.source(new SpatialIndexFeatureCollection(source.getFeatures())));
+				schemaVect.add(schema);
+			} else {
+				cachedSourceVect.add(source);
+				schemaVect.add(schema);
+			}
+			System.out.println("- End upload shapefile " + file.getName() + ": "
+					+ Calendar.getInstance().getTime());
 
-        } catch (Exception e) {
-            System.out.println("- Error during upload shapefile: " + e.getMessage());
-            cachedSourceVect.add(source);
-            schemaVect.add(schema);
-        }
-    }
+		} catch (Exception e) {
+			System.out.println("- Error during upload shapefile: " + e.getMessage());
+			cachedSourceVect.add(source);
+			schemaVect.add(schema);
+		}
+	}
 
-    /**
-     * Method used to project coordinates onto the shapefile
-     * @param candidate candidate to be projected on the shapefile
-     * @param intersectResult area to be enhanced
-     * @return candidate extracted from the shapefile
-     */
-    public IntersectResult intersectShapefile(Candidate candidate, IntersectResult intersectResult) {
+	/**
+	 * Method used to project coordinates onto the shapefile
+	 * @param candidate candidate to be projected on the shapefile
+	 * @param intersectResult area to be enhanced
+	 * @return candidate extracted from the shapefile
+	 */
+	public IntersectResult intersectShapefile(Candidate candidate, IntersectResult intersectResult) {
 
-        ShapeData shapeData = new ShapeData();
-        try {
-            shapeData.setFilter(CQL.toFilter("intersects(the_geom, POINT("
-                    + candidate.getCoordinateX()
-                    + " "
-                    + candidate.getCoordinateY()
-                    + "))"));
+		ShapeData shapeData = new ShapeData();
+		try {
+			shapeData.setFilter(CQL.toFilter("intersects(the_geom, POINT("
+					+ candidate.getCoordinateX()
+					+ " "
+					+ candidate.getCoordinateY()
+					+ "))"));
 
-            for (int i = 0; i < cachedSourceVect.size(); i++) {
-                synchronized (cachedSourceVect) {
-                    shapeData.setQuery(new Query(schemaVect.get(i).getTypeName()));
-                    shapeData.getQuery().setMaxFeatures(1);
-                    shapeData.getQuery().setFilter(shapeData.getFilter());
-                    shapeData.setCollection(cachedSourceVect.get(i).getFeatures(shapeData.getQuery()));
-                }
-            }
-            try (FeatureIterator<SimpleFeature> features =
-                    shapeData.getCollection().features()) {
-                while (features.hasNext()) {
-                    intersectResult.getShapeElements().add(features.next());
-                }
-            }
+			for (int i = 0; i < cachedSourceVect.size(); i++) {
+				synchronized (cachedSourceVect) {
+					shapeData.setQuery(new Query(schemaVect.get(i).getTypeName()));
+					shapeData.getQuery().setMaxFeatures(1);
+					shapeData.getQuery().setFilter(shapeData.getFilter());
+					shapeData.setCollection(cachedSourceVect.get(i).getFeatures(shapeData.getQuery()));
+				}
+			}
+			try (FeatureIterator<SimpleFeature> features =
+					shapeData.getCollection().features()) {
+				while (features.hasNext()) {
+					intersectResult.getShapeElements().add(features.next());
+				}
+			}
 
-        } catch (Exception e) {
-            System.out.println("Error during intersect shapefile: " + e.getMessage());
-            System.exit(1);
-        }
-        return intersectResult;
-    }
+		} catch (Exception e) {
+			System.out.println("Error during intersect shapefile: " + e.getMessage());
+			System.exit(1);
+		}
+		return intersectResult;
+	}
 
-    /**
-     * Method used to project coordinates onto the shapefile and extract n candidates
-     * @param candidate candidate to be projected on the shapefile
-     * @param intersectParameters settings used for research
-     * @return candidates extracted from the shapefile
-     */
-    public IntersectResult extractDataFromShapefile(Candidate candidate, IntersectParameters intersectParameters) {
+	/**
+	 * Method used to project coordinates onto the shapefile and extract n candidates
+	 * @param candidate candidate to be projected on the shapefile
+	 * @param intersectParameters settings used for research
+	 * @return candidates extracted from the shapefile
+	 */
+	public IntersectResult extractDataFromShapefile(Candidate candidate, IntersectParameters intersectParameters) {
 
-        IntersectResult intersectResult = new IntersectResult();
-        try {
-            double lap = 1;
-            double distance = 0;
-            double increase = 0.00001 * intersectParameters.getIncrease();
-            intersectResult = intersectShapefile(candidate, intersectResult);
+		IntersectResult intersectResult = new IntersectResult();
+		try {
+			double lap = 1;
+			double distance = 0;
+			double increase = 0.00001 * intersectParameters.getIncrease();
+			intersectResult = intersectShapefile(candidate, intersectResult);
 
-            for (int i = 1; i < intersectParameters.getAttempts(); i++) {
-                if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
-                if (distance >= intersectParameters.getMaxDistance()) break;
+			for (int i = 1; i < intersectParameters.getAttempts(); i++) {
+				if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
+				if (distance >= intersectParameters.getMaxDistance()) break;
 
-                for (double x = candidate.getCoordinateX() - increase;
-                        x <= candidate.getCoordinateX() + increase;
-                        x += increase / lap) {
+				for (double x = candidate.getCoordinateX() - increase;
+						x <= candidate.getCoordinateX() + increase;
+						x += increase / lap) {
 
-                    for (double y = candidate.getCoordinateY() - increase;
-                            y <= candidate.getCoordinateY() + increase;
-                            y += increase / lap) {
+					for (double y = candidate.getCoordinateY() - increase;
+							y <= candidate.getCoordinateY() + increase;
+							y += increase / lap) {
 
-                        Candidate point = new Candidate(x, y);
-                        intersectResult = intersectShapefile(point, intersectResult);
-                        if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
-                    }
+						Candidate point = new Candidate(x, y);
+						intersectResult = intersectShapefile(point, intersectResult);
+						if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
+					}
 
-                    if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
-                }
+					if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
+				}
 
-                distance += intersectParameters.getIncrease();
-                increase += 0.00001 * intersectParameters.getIncrease();
-                lap++;
-            }
-        } catch (Exception e) {
-            System.out.println("Error when extracting data from shapefile: " + e.getMessage());
-            System.exit(1);
-        }
-        return intersectResult;
-    }
+				distance += intersectParameters.getIncrease();
+				increase += 0.00001 * intersectParameters.getIncrease();
+				lap++;
+			}
+		} catch (Exception e) {
+			System.out.println("Error when extracting data from shapefile: " + e.getMessage());
+			System.exit(1);
+		}
+		return intersectResult;
+	}
 
-    /**
-     * Method used to project the coordinates onto the database and extract the specified columns
-     * @param candidate candidate to be projected on the database
-     * @param database database connection
-     * @param columns database columns
-     * @return list of candidates close to the given point
-     */
-    public IntersectResult extractDataFromDatabase(
-            Candidate candidate, Database database, double limit, ArrayList<String> columns) {
+	/**
+	 * Method used to project the coordinates onto the database and extract the specified columns
+	 * @param candidate candidate to be projected on the database
+	 * @param database database connection
+	 * @param columns database columns
+	 * @return list of candidates close to the given point
+	 */
+	public IntersectResult extractDataFromDatabase(
+			Candidate candidate, Database database, double limit, ArrayList<String> columns) {
 
-        String query = "SELECT DISTINCT ";
-        for (String column : columns) {
-            query += column + ",";
-        }
-        query += "ST_Distance(geom,ST_SetSRID(ST_MakePoint("
-                + candidate.getCoordinateX()
-                + ","
-                + candidate.getCoordinateY()
-                + "),"
-                + candidate.getCoordinateType()
-                + ")) FROM "
-                + database.getSchema()
-                + ".\""
-                + database.getTable()
-                + "\" ORDER BY ST_Distance LIMIT "
-                + limit
-                + ";";
+		String query = "SELECT DISTINCT ";
+		for (String column : columns) {
+			query += column + ",";
+		}
+		query += "ST_Distance(geom,ST_SetSRID(ST_MakePoint("
+				+ candidate.getCoordinateX()
+				+ ","
+				+ candidate.getCoordinateY()
+				+ "),"
+				+ candidate.getCoordinateType()
+				+ ")) FROM "
+				+ database.getSchema()
+				+ ".\""
+				+ database.getTable()
+				+ "\" ORDER BY ST_Distance LIMIT "
+				+ limit
+				+ ";";
 
-        return executeIntersect(database, query);
-    }
+		return executeIntersect(database, query);
+	}
 
-    /**
-     * Method used to project coordinates onto the database and extract n candidates given in the limit parameter
-     * @param candidate candidate to be projected on the database
-     * @param database database connection
-     * @param limit maximum number of candidates to be drawn
-     * @return list of candidates close to the given point
-     */
-    public IntersectResult extractDataFromDatabase(Candidate candidate, Database database, double limit) {
-        String query = "SELECT DISTINCT *,ST_Distance(geom,ST_SetSRID(ST_MakePoint("
-                + candidate.getCoordinateX()
-                + ","
-                + candidate.getCoordinateY()
-                + "),"
-                + candidate.getCoordinateType()
-                + ")) FROM "
-                + database.getSchema()
-                + ".\""
-                + database.getTable()
-                + "\" ORDER BY ST_Distance LIMIT "
-                + limit
-                + ";";
+	/**
+	 * Method used to project coordinates onto the database and extract n candidates given in the limit parameter
+	 * @param candidate candidate to be projected on the database
+	 * @param database database connection
+	 * @param limit maximum number of candidates to be drawn
+	 * @return list of candidates close to the given point
+	 */
+	public IntersectResult extractDataFromDatabase(Candidate candidate, Database database, double limit) {
+		String query = "SELECT DISTINCT *,ST_Distance(geom,ST_SetSRID(ST_MakePoint("
+				+ candidate.getCoordinateX()
+				+ ","
+				+ candidate.getCoordinateY()
+				+ "),"
+				+ candidate.getCoordinateType()
+				+ ")) FROM "
+				+ database.getSchema()
+				+ ".\""
+				+ database.getTable()
+				+ "\" ORDER BY ST_Distance LIMIT "
+				+ limit
+				+ ";";
 
-        return executeIntersect(database, query);
-    }
+		return executeIntersect(database, query);
+	}
 
-    // TODO add a new method that allows you to set a maximum search radius on the database
+	// TODO add a new method that allows you to set a maximum search radius on the database
 
-    /**
-     * Method used to extract data from the database
-     * @param database database connection
-     * @param query database query
-     * @return list of candidates close to the given point
-     */
-    private IntersectResult executeIntersect(Database database, String query) {
-        IntersectResult intersectResult = new IntersectResult();
-        try {
-            database.connect();
-            if (database.getConnection() != null) {
-                Statement stmt = database.getConnection().createStatement();
-                intersectResult.setDbElements(stmt.executeQuery(query));
-            } else {
-                System.out.println("Error during database connection.");
-            }
-        } catch (Exception e) {
-            System.out.println("Error during intersect database: " + e.getMessage());
-        }
-        return intersectResult;
-    }
+	/**
+	 * Method used to extract data from the database
+	 * @param database database connection
+	 * @param query database query
+	 * @return list of candidates close to the given point
+	 */
+	private IntersectResult executeIntersect(Database database, String query) {
+		IntersectResult intersectResult = new IntersectResult();
+		try {
+			database.connect();
+			if (database.getConnection() != null) {
+				Statement stmt = database.getConnection().createStatement();
+				intersectResult.setDbElements(stmt.executeQuery(query));
+			} else {
+				System.out.println("Error during database connection.");
+			}
+		} catch (Exception e) {
+			System.out.println("Error during intersect database: " + e.getMessage());
+		}
+		return intersectResult;
+	}
 }

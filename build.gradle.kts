@@ -72,6 +72,7 @@ spotless {
         palantirJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
+        indentWithTabs()
         endWithNewline()
     }
 }
