@@ -22,7 +22,7 @@ dependencies {
     implementation("org.geotools:gt-shapefile:$geotoolsVersion")
     implementation("org.geotools:gt-geojson-store:$geotoolsVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
-    implementation("commons-cli:commons-cli:1.8.0")
+    implementation("commons-cli:commons-cli:1.9.0")
 }
 
 tasks.jar {
