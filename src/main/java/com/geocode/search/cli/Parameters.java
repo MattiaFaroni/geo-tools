@@ -7,46 +7,22 @@ import com.geocode.search.cli.settings.IntersectModel;
 import com.geocode.search.cli.settings.IntersectParameters;
 import java.io.*;
 import java.util.Properties;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.cli.CommandLine;
 
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Parameters {
 
 	private FileConfiguration fileConfiguration = new FileConfiguration();
 	private IntersectModel intersectModel = new IntersectModel();
 	private IntersectParameters intersectParameters = new IntersectParameters();
 	private int threads = 1;
-
-	public FileConfiguration getFileConfiguration() {
-		return fileConfiguration;
-	}
-
-	public void setFileConfiguration(FileConfiguration fileConfiguration) {
-		this.fileConfiguration = fileConfiguration;
-	}
-
-	public IntersectModel getIntersectModel() {
-		return intersectModel;
-	}
-
-	public void setIntersectModel(IntersectModel intersectModel) {
-		this.intersectModel = intersectModel;
-	}
-
-	public IntersectParameters getIntersectParameters() {
-		return intersectParameters;
-	}
-
-	public void setIntersectParameters(IntersectParameters intersectParameters) {
-		this.intersectParameters = intersectParameters;
-	}
-
-	public int getThreads() {
-		return threads;
-	}
-
-	public void setThreads(int threads) {
-		this.threads = threads;
-	}
 
 	/**
 	 * Method used to read parameters from the configuration file

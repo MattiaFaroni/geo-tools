@@ -5,47 +5,21 @@ import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.GeoTool;
 import com.geocode.search.service.output.IntersectResult;
 import java.io.IOException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.opengis.feature.simple.SimpleFeature;
 
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Process implements Runnable {
 
 	private Parameters parameters;
 	private GeoTool geoTool;
 	private static int rowCount = 0;
-
-	public Parameters getParameters() {
-		return parameters;
-	}
-
-	public void setParameters(Parameters parameters) {
-		this.parameters = parameters;
-	}
-
-	public GeoTool getGeoTool() {
-		return geoTool;
-	}
-
-	public void setGeoTool(GeoTool geoTool) {
-		this.geoTool = geoTool;
-	}
-
-	public static int getRowCount() {
-		return rowCount;
-	}
-
-	public static void setRowCount(int rowCount) {
-		Process.rowCount = rowCount;
-	}
-
-	/**
-	 * Constructor
-	 * @param parameters input params
-	 * @param geoTool shapefile to use
-	 */
-	public Process(Parameters parameters, GeoTool geoTool) {
-		this.parameters = parameters;
-		this.geoTool = geoTool;
-	}
 
 	@Override
 	public void run() {
@@ -71,21 +45,20 @@ public class Process implements Runnable {
 	 * Method used to perform intersect on shapefile or database
 	 * @param line record of the input file to be processed
 	 */
+	// spotless:off
 	private void executeIntersect(String line) {
 		Candidate candidate = readCoordinates(line);
+
 		if (parameters.getIntersectModel().getIntersectType().equalsIgnoreCase("shapefile")) {
-			IntersectResult intersectResult =
-					geoTool.extractDataFromShapefile(candidate, parameters.getIntersectParameters());
+			IntersectResult intersectResult = geoTool.extractDataFromShapefile(candidate, parameters.getIntersectParameters());
 			generateShapefileOutput(intersectResult, line);
+
 		} else if (parameters.getIntersectModel().getIntersectType().equalsIgnoreCase("database")) {
-			IntersectResult intersectResult = geoTool.extractDataFromDatabase(
-					candidate,
-					parameters.getIntersectModel().getDatabaseConnection(),
-					parameters.getIntersectParameters().getCandidates(),
-					parameters.getIntersectModel().getIntersectData());
+			IntersectResult intersectResult = geoTool.extractDataFromDatabase(candidate, parameters.getIntersectModel().getDatabaseConnection(), parameters.getIntersectParameters().getCandidates(), parameters.getIntersectModel().getIntersectData());
 			addDatabaseResultToFile(intersectResult, line);
 		}
 	}
+	// spotless:on
 
 	/**
 	 * Method used to read the coordinates and type
@@ -187,10 +160,11 @@ public class Process implements Runnable {
 	 * Method used to generate output when nothing is found within the shapefile
 	 * @return string to be reported in output
 	 */
+	// spotless:off
 	private String generateOutputEmpty() {
-		return String.valueOf(parameters.getFileConfiguration().getDelimiter())
-				.repeat(parameters.getIntersectModel().getIntersectData().size() - 1);
+		return String.valueOf(parameters.getFileConfiguration().getDelimiter()).repeat(parameters.getIntersectModel().getIntersectData().size() - 1);
 	}
+	// spotless:on
 
 	/**
 	 * Method used to report the result to the output file

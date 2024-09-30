@@ -40,3 +40,7 @@ bin/
 
 ### Configuration ###
 config/
+
+### Test ###
+dat/
+shapefiles/

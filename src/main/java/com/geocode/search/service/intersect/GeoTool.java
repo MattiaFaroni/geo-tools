@@ -10,6 +10,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Vector;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
@@ -21,6 +24,9 @@ import org.geotools.filter.text.cql2.CQL;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class GeoTool {
 
 	private static SimpleFeatureSource source;
@@ -28,43 +34,17 @@ public class GeoTool {
 	private static final Vector<SimpleFeatureSource> cachedSourceVect = new Vector<>();
 	private static final Vector<SimpleFeatureType> schemaVect = new Vector<>();
 
-	public static SimpleFeatureSource getSource() {
-		return source;
-	}
-
-	public static void setSource(SimpleFeatureSource source) {
-		GeoTool.source = source;
-	}
-
-	public static SimpleFeatureType getSchema() {
-		return schema;
-	}
-
-	public static void setSchema(SimpleFeatureType schema) {
-		GeoTool.schema = schema;
-	}
-
-	public static Vector<SimpleFeatureSource> getCachedSourceVect() {
-		return cachedSourceVect;
-	}
-
-	public static Vector<SimpleFeatureType> getSchemaVect() {
-		return schemaVect;
-	}
-
-	public GeoTool() {}
-
 	/**
 	 * Constructor
 	 * @param fileName shapefile name
 	 * @param activeCache cache enable flag
 	 */
+	// spotless:off
 	public GeoTool(String fileName, String activeCache) {
 
 		File file = new File(fileName);
 		try {
-			System.out.println("- Start upload shapefile " + file.getName() + ": "
-					+ Calendar.getInstance().getTime());
+			System.out.println("- Start upload shapefile " + file.getName() + ": " + Calendar.getInstance().getTime());
 			FileDataStore myData = FileDataStoreFinder.getDataStore(file);
 			source = myData.getFeatureSource();
 			schema = source.getSchema();
@@ -76,8 +56,7 @@ public class GeoTool {
 				cachedSourceVect.add(source);
 				schemaVect.add(schema);
 			}
-			System.out.println("- End upload shapefile " + file.getName() + ": "
-					+ Calendar.getInstance().getTime());
+			System.out.println("- End upload shapefile " + file.getName() + ": " + Calendar.getInstance().getTime());
 
 		} catch (Exception e) {
 			System.out.println("- Error during upload shapefile: " + e.getMessage());
@@ -85,6 +64,7 @@ public class GeoTool {
 			schemaVect.add(schema);
 		}
 	}
+	// spotless:on
 
 	/**
 	 * Method used to project coordinates onto the shapefile
@@ -92,15 +72,12 @@ public class GeoTool {
 	 * @param intersectResult area to be enhanced
 	 * @return candidate extracted from the shapefile
 	 */
+	// spotless:off
 	public IntersectResult intersectShapefile(Candidate candidate, IntersectResult intersectResult) {
 
 		ShapeData shapeData = new ShapeData();
 		try {
-			shapeData.setFilter(CQL.toFilter("intersects(the_geom, POINT("
-					+ candidate.getCoordinateX()
-					+ " "
-					+ candidate.getCoordinateY()
-					+ "))"));
+			shapeData.setFilter(CQL.toFilter("intersects(the_geom, POINT(" + candidate.getCoordinateX() + " " + candidate.getCoordinateY() + "))"));
 
 			for (int i = 0; i < cachedSourceVect.size(); i++) {
 				synchronized (cachedSourceVect) {
@@ -110,6 +87,7 @@ public class GeoTool {
 					shapeData.setCollection(cachedSourceVect.get(i).getFeatures(shapeData.getQuery()));
 				}
 			}
+
 			try (FeatureIterator<SimpleFeature> features =
 					shapeData.getCollection().features()) {
 				while (features.hasNext()) {
@@ -123,6 +101,7 @@ public class GeoTool {
 		}
 		return intersectResult;
 	}
+	// spotless:on
 
 	/**
 	 * Method used to project coordinates onto the shapefile and extract n candidates
@@ -130,6 +109,7 @@ public class GeoTool {
 	 * @param intersectParameters settings used for research
 	 * @return candidates extracted from the shapefile
 	 */
+	// spotless:off
 	public IntersectResult extractDataFromShapefile(Candidate candidate, IntersectParameters intersectParameters) {
 
 		IntersectResult intersectResult = new IntersectResult();
@@ -143,13 +123,9 @@ public class GeoTool {
 				if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
 				if (distance >= intersectParameters.getMaxDistance()) break;
 
-				for (double x = candidate.getCoordinateX() - increase;
-						x <= candidate.getCoordinateX() + increase;
-						x += increase / lap) {
+				for (double x = candidate.getCoordinateX() - increase;	x <= candidate.getCoordinateX() + increase;	x += increase / lap) {
 
-					for (double y = candidate.getCoordinateY() - increase;
-							y <= candidate.getCoordinateY() + increase;
-							y += increase / lap) {
+					for (double y = candidate.getCoordinateY() - increase; y <= candidate.getCoordinateY() + increase; y += increase / lap) {
 
 						Candidate point = new Candidate(x, y);
 						intersectResult = intersectShapefile(point, intersectResult);
@@ -169,6 +145,7 @@ public class GeoTool {
 		}
 		return intersectResult;
 	}
+	// spotless:on
 
 	/**
 	 * Method used to project the coordinates onto the database and extract the specified columns
@@ -177,9 +154,8 @@ public class GeoTool {
 	 * @param columns database columns
 	 * @return list of candidates close to the given point
 	 */
-	public IntersectResult extractDataFromDatabase(
-			Candidate candidate, Database database, double limit, ArrayList<String> columns) {
-
+	// spotless:off
+	public IntersectResult extractDataFromDatabase(Candidate candidate, Database database, double limit, ArrayList<String> columns) {
 		String query = "SELECT DISTINCT ";
 		for (String column : columns) {
 			query += column + ",";
@@ -200,6 +176,7 @@ public class GeoTool {
 
 		return executeIntersect(database, query);
 	}
+	// spotless:on
 
 	/**
 	 * Method used to project coordinates onto the database and extract n candidates given in the limit parameter

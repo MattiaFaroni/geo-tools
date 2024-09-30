@@ -7,45 +7,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class IntersectModel {
 
 	private String intersectType;
 	private ArrayList<String> intersectData = new ArrayList<>();
 	private File shapefilePath;
 	private Database databaseConnection;
-
-	public String getIntersectType() {
-		return intersectType;
-	}
-
-	public void setIntersectType(String intersectType) {
-		this.intersectType = intersectType;
-	}
-
-	public ArrayList<String> getIntersectData() {
-		return intersectData;
-	}
-
-	public void setIntersectData(ArrayList<String> intersectData) {
-		this.intersectData = intersectData;
-	}
-
-	public File getShapefilePath() {
-		return shapefilePath;
-	}
-
-	public void setShapefilePath(File shapefilePath) {
-		this.shapefilePath = shapefilePath;
-	}
-
-	public Database getDatabaseConnection() {
-		return databaseConnection;
-	}
-
-	public void setDatabaseConnection(Database databaseConnection) {
-		this.databaseConnection = databaseConnection;
-	}
 
 	/**
 	 * Method used to read intersect parameters from the configuration file
@@ -55,6 +31,7 @@ public class IntersectModel {
 	public boolean readConfigFromProperties(Properties properties) {
 		if (readIntersectType(properties)) {
 			if (readIntersectData(properties)) {
+
 				if (intersectType.equalsIgnoreCase("shapefile")) {
 					return readShapefileConfiguration(properties);
 				} else if (intersectType.equalsIgnoreCase("database")) {
@@ -70,10 +47,10 @@ public class IntersectModel {
 	 * @param properties configuration file
 	 * @return boolean value that certifies whether the parameter values was correct
 	 */
+	// spotless:off
 	private boolean readIntersectType(Properties properties) {
 		if (properties.getProperty("geotools.intersect_type") != null) {
-			if (properties.getProperty("geotools.intersect_type").equalsIgnoreCase("shapefile")
-					|| properties.getProperty("geotools.intersect_type").equalsIgnoreCase("database")) {
+			if (properties.getProperty("geotools.intersect_type").equalsIgnoreCase("shapefile")  || properties.getProperty("geotools.intersect_type").equalsIgnoreCase("database")) {
 				intersectType = properties.getProperty("geotools.intersect_type");
 				return true;
 			} else {
@@ -86,6 +63,7 @@ public class IntersectModel {
 			return false;
 		}
 	}
+	// spotless:on
 
 	/**
 	 * Method used to read the intersect data from the configuration file
@@ -115,9 +93,9 @@ public class IntersectModel {
 	 * @param properties configuration file
 	 * @return boolean value that certifies whether the parameter values was correct
 	 */
+	// spotless:off
 	private boolean readShapefileConfiguration(Properties properties) {
-		if (properties.getProperty("geotools.shapefile_path") != null
-				&& !properties.getProperty("geotools.shapefile_path").isEmpty()) {
+		if (properties.getProperty("geotools.shapefile_path") != null && !properties.getProperty("geotools.shapefile_path").isEmpty()) {
 			shapefilePath = new File(properties.getProperty("geotools.shapefile_path"));
 
 			if (shapefilePath.exists() && !shapefilePath.isDirectory()) {
@@ -132,24 +110,23 @@ public class IntersectModel {
 			return false;
 		}
 	}
+	// spotless:on
 
 	/**
 	 * Method used to read database connection settings from the configuration file
 	 * @param properties configuration file
 	 * @return boolean value that certifies whether the parameter values was correct
 	 */
+	// spotless:off
 	private boolean readDatabaseConfiguration(Properties properties) {
-		if (properties.getProperty("geotools.database_connection") != null
-				&& !properties.getProperty("geotools.database_connection").isEmpty()) {
+		if (properties.getProperty("geotools.database_connection") != null && !properties.getProperty("geotools.database_connection").isEmpty()) {
 
-			if (properties.getProperty("geotools.database_username") == null
-					&& !properties.getProperty("geotools.database_username").isEmpty()) {
+			if (properties.getProperty("geotools.database_username") == null && !properties.getProperty("geotools.database_username").isEmpty()) {
 				System.out.println(USERNAME_INVALID.description);
 				return false;
 			}
 
-			if (properties.getProperty("geotools.database_password") == null
-					&& !properties.getProperty("geotools.database_password").isEmpty()) {
+			if (properties.getProperty("geotools.database_password") == null && !properties.getProperty("geotools.database_password").isEmpty()) {
 				System.out.println(PASSWORD_INVALID.description);
 				return false;
 			}
@@ -166,4 +143,5 @@ public class IntersectModel {
 			return false;
 		}
 	}
+	// spotless:on
 }

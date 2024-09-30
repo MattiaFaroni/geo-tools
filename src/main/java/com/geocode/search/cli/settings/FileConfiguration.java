@@ -7,7 +7,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class FileConfiguration {
 
 	private BufferedReader inputFile;
@@ -17,62 +25,6 @@ public class FileConfiguration {
 	private int columnY;
 	private int coordinateType;
 	private FileWriter outputFile;
-
-	public BufferedReader getInputFile() {
-		return inputFile;
-	}
-
-	public void setInputFile(BufferedReader inputFile) {
-		this.inputFile = inputFile;
-	}
-
-	public String getDelimiter() {
-		return delimiter;
-	}
-
-	public void setDelimiter(String delimiter) {
-		this.delimiter = delimiter;
-	}
-
-	public String getHeader() {
-		return header;
-	}
-
-	public void setHeader(String header) {
-		this.header = header;
-	}
-
-	public int getColumnX() {
-		return columnX;
-	}
-
-	public void setColumnX(int columnX) {
-		this.columnX = columnX;
-	}
-
-	public int getColumnY() {
-		return columnY;
-	}
-
-	public void setColumnY(int columnY) {
-		this.columnY = columnY;
-	}
-
-	public int getCoordinateType() {
-		return coordinateType;
-	}
-
-	public void setCoordinateType(int coordinateType) {
-		this.coordinateType = coordinateType;
-	}
-
-	public FileWriter getOutputFile() {
-		return outputFile;
-	}
-
-	public void setOutputFile(FileWriter outputFile) {
-		this.outputFile = outputFile;
-	}
 
 	/**
 	 * Method used to read the settings on the input file from the configuration file
@@ -123,6 +75,7 @@ public class FileConfiguration {
 				inputFile = new BufferedReader(fileReader);
 				return true;
 			}
+
 		} else {
 			System.out.println(HEADER_INVALID.description);
 			return false;
@@ -141,12 +94,14 @@ public class FileConfiguration {
 			System.out.println(COLUMN_X_INVALID.description);
 			return false;
 		}
+
 		if (properties.getProperty("geotools.column_y") != null) {
 			columnY = Integer.parseInt(properties.getProperty("geotools.column_y"));
 		} else {
 			System.out.println(COLUMN_Y_INVALID.description);
 			return false;
 		}
+
 		if (properties.getProperty("geotools.coordinate_type") != null) {
 			try {
 				coordinateType = Integer.parseInt(properties.getProperty("geotools.coordinate_type"));
@@ -157,6 +112,7 @@ public class FileConfiguration {
 		} else {
 			coordinateType = 4326;
 		}
+
 		return true;
 	}
 

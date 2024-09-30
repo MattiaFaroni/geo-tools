@@ -2,6 +2,7 @@ import java.util.*
 
 val geotoolsVersion: String by project
 val postgresVersion: String by project
+val lombokVersion: String by project
 
 plugins {
     id("java")
@@ -10,7 +11,11 @@ plugins {
 }
 
 group = "com.geocode.search"
-version = "1.0.0"
+version = "1.0.1"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     maven { url = uri("https://repo.osgeo.org/repository/release/") }
@@ -18,6 +23,8 @@ repositories {
 }
 
 dependencies {
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
     implementation("org.geotools:gt-swing:$geotoolsVersion")
     implementation("org.geotools:gt-shapefile:$geotoolsVersion")
     implementation("org.geotools:gt-geojson-store:$geotoolsVersion")
