@@ -1,6 +1,6 @@
 package com.geocode.search.service.intersect;
 
-import com.geocode.search.cli.settings.IntersectParameters;
+import com.geocode.search.cli.yaml.settings.IntersectParameters;
 import com.geocode.search.connection.Database;
 import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.shapefile.ShapeData;

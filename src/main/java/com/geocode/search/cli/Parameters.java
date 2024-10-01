@@ -2,11 +2,13 @@ package com.geocode.search.cli;
 
 import static com.geocode.search.cli.Descriptions.*;
 
-import com.geocode.search.cli.settings.FileConfiguration;
-import com.geocode.search.cli.settings.IntersectModel;
-import com.geocode.search.cli.settings.IntersectParameters;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.geocode.search.cli.yaml.YamlStructure;
+import com.geocode.search.cli.yaml.settings.FileSettings;
+import com.geocode.search.cli.yaml.settings.IntersectParameters;
+import com.geocode.search.cli.yaml.settings.IntersectSettings;
 import java.io.*;
-import java.util.Properties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,39 +21,50 @@ import org.apache.commons.cli.CommandLine;
 @AllArgsConstructor
 public class Parameters {
 
-	private FileConfiguration fileConfiguration = new FileConfiguration();
-	private IntersectModel intersectModel = new IntersectModel();
+	private FileSettings fileSettings = new FileSettings();
+	private IntersectSettings intersectSettings = new IntersectSettings();
 	private IntersectParameters intersectParameters = new IntersectParameters();
 	private int threads = 1;
 
 	/**
 	 * Method used to read parameters from the configuration file
 	 * @param cmd command line
-	 * @return boolean value that certifies whether the parameter reading was successful
+	 * @return boolean value indicating whether the parameter is correct
 	 */
+	// spotless:off
 	public boolean readParams(CommandLine cmd) {
+		if (cmd.getOptionValue("thread") != null) {
+			threads = Integer.parseInt(cmd.getOptionValue("thread"));
+		}
+
+		String configFilePath = cmd.getOptionValue("config");
+		YamlStructure yamlStructure = readYaml(configFilePath);
+
+		boolean correctSettings = false;
+
+		if (yamlStructure != null) {
+			if (fileSettings.readConfigFromYaml(yamlStructure) && intersectSettings.readConfigFromYaml(yamlStructure)) {
+				intersectParameters.readConfigFromYaml(yamlStructure);
+				correctSettings = true;
+			}
+		}
+		return correctSettings;
+	}
+	// spotless:on
+
+	/**
+	 * Method used to read the .yaml configuration file
+	 * @param path configuration file path
+	 * @return data contained in the configuration file
+	 */
+	private YamlStructure readYaml(String path) {
 		try {
-			if (cmd.getOptionValue("thread") != null) {
-				threads = Integer.parseInt(cmd.getOptionValue("thread"));
-			}
-			String configFilePath = cmd.getOptionValue("config");
-			FileInputStream fileConfig = new FileInputStream(configFilePath);
-			Properties properties = new Properties();
-			properties.load(fileConfig);
-
-			if (fileConfiguration.readConfigFromProperties(properties)) {
-				if (intersectModel.readConfigFromProperties(properties)) {
-					return intersectParameters.readSettingsFromProperties(properties);
-				}
-			}
-			return false;
-
-		} catch (FileNotFoundException e) {
-			System.out.println(FILE_CONFIG_INVALID.description);
-			return false;
-		} catch (IOException e) {
+			ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+			mapper.findAndRegisterModules();
+			return mapper.readValue(new File(path), YamlStructure.class);
+		} catch (Exception e) {
 			System.out.println(ERROR_READ_CONFIG.description);
-			return false;
+			return null;
 		}
 	}
 
@@ -60,10 +73,10 @@ public class Parameters {
 	 */
 	public void closeAllConnection() {
 		try {
-			fileConfiguration.getInputFile().close();
-			fileConfiguration.getOutputFile().close();
-			if (intersectModel.getDatabaseConnection() != null) {
-				intersectModel.getDatabaseConnection().closeConnection();
+			fileSettings.getInputFile().close();
+			fileSettings.getOutputFile().close();
+			if (intersectSettings.getDatabaseConnection() != null) {
+				intersectSettings.getDatabaseConnection().closeConnection();
 			}
 		} catch (Exception e) {
 			System.out.println("Error while closing all connections. Description: " + e.getMessage());

@@ -38,9 +38,9 @@ public class Database {
 		this.username = username;
 		this.password = password;
 		Properties props = org.postgresql.Driver.parseURL(url, null);
-		this.host = Objects.requireNonNull(props).getProperty(PGProperty.PG_HOST.getName());
-		this.port = props.getProperty(PGProperty.PG_PORT.getName());
-		this.database = props.getProperty(PGProperty.PG_DBNAME.getName());
+		host = Objects.requireNonNull(props).getProperty(PGProperty.PG_HOST.getName());
+		port = props.getProperty(PGProperty.PG_PORT.getName());
+		database = props.getProperty(PGProperty.PG_DBNAME.getName());
 
 		if (props.getProperty(PGProperty.CURRENT_SCHEMA.getName()).contains(",")) {
 			String[] elements = props.getProperty(PGProperty.CURRENT_SCHEMA.getName()).split(",");

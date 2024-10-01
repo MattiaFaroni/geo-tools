@@ -106,8 +106,8 @@ public class Intersect {
 	private static GeoTool readConfiguration(Parameters parameters, CommandLine cmd) {
 		GeoTool geoTool = new GeoTool();
 		if (parameters.readParams(cmd)) {
-			if (parameters.getIntersectModel().getIntersectType().equals("shapefile")) {
-				geoTool = new GeoTool(parameters.getIntersectModel().getShapefilePath().toString(), "N");
+			if (parameters.getIntersectSettings().getIntersectType().equals("shapefile")) {
+				geoTool = new GeoTool(parameters.getIntersectSettings().getShapefilePath().toString(), "N");
 			}
 		} else {
 			System.exit(0);
@@ -123,7 +123,7 @@ public class Intersect {
 	 */
 	private static void startProcessing(Parameters parameters, GeoTool geoTool) {
 		printStart();
-		if (parameters.getFileConfiguration().getHeader().equalsIgnoreCase("S")) {
+		if (parameters.getFileSettings().getHeader().equalsIgnoreCase("S")) {
 			addHeader(parameters);
 		}
 		ArrayList<Thread> threads = launchThreads(parameters, geoTool);
@@ -177,8 +177,8 @@ public class Intersect {
 	// spotless:off
 	private static void addHeader(Parameters parameters) {
 		try {
-			String inputHeader = parameters.getFileConfiguration().getInputFile().readLine();
-			inputHeader += parameters.getFileConfiguration().getDelimiter();
+			String inputHeader = parameters.getFileSettings().getInputFile().readLine();
+			inputHeader += parameters.getFileSettings().getDelimiter();
 			createOutputHeader(inputHeader, parameters);
 
 		} catch (Exception e) {
@@ -195,13 +195,13 @@ public class Intersect {
 	private static void createOutputHeader(String inputHeader, Parameters parameters) {
 		try {
 			String outputHeader = "";
-			for (String column : parameters.getIntersectModel().getIntersectData()) {
-				outputHeader += column + parameters.getFileConfiguration().getDelimiter();
+			for (String column : parameters.getIntersectSettings().getIntersectData()) {
+				outputHeader += column + parameters.getFileSettings().getDelimiter();
 			}
 			outputHeader = outputHeader.substring(0, outputHeader.length() - 1);
 
-			parameters.getFileConfiguration().getOutputFile().write(inputHeader + outputHeader + "\n");
-			parameters.getFileConfiguration().getOutputFile().flush();
+			parameters.getFileSettings().getOutputFile().write(inputHeader + outputHeader + "\n");
+			parameters.getFileSettings().getOutputFile().flush();
 
 		} catch (Exception e) {
 			System.out.println("Error when create output header. Description: " + e.getMessage());

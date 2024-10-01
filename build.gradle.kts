@@ -30,6 +30,7 @@ dependencies {
     implementation("org.geotools:gt-geojson-store:$geotoolsVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("commons-cli:commons-cli:1.9.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.0")
 }
 
 tasks.jar {

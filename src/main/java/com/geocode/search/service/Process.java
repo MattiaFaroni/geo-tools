@@ -25,7 +25,7 @@ public class Process implements Runnable {
 	public void run() {
 		String line;
 		try {
-			while ((line = parameters.getFileConfiguration().getInputFile().readLine()) != null) {
+			while ((line = parameters.getFileSettings().getInputFile().readLine()) != null) {
 				executeIntersect(line);
 
 				rowCount++;
@@ -49,12 +49,12 @@ public class Process implements Runnable {
 	private void executeIntersect(String line) {
 		Candidate candidate = readCoordinates(line);
 
-		if (parameters.getIntersectModel().getIntersectType().equalsIgnoreCase("shapefile")) {
+		if (parameters.getIntersectSettings().getIntersectType().equalsIgnoreCase("shapefile")) {
 			IntersectResult intersectResult = geoTool.extractDataFromShapefile(candidate, parameters.getIntersectParameters());
 			generateShapefileOutput(intersectResult, line);
 
-		} else if (parameters.getIntersectModel().getIntersectType().equalsIgnoreCase("database")) {
-			IntersectResult intersectResult = geoTool.extractDataFromDatabase(candidate, parameters.getIntersectModel().getDatabaseConnection(), parameters.getIntersectParameters().getCandidates(), parameters.getIntersectModel().getIntersectData());
+		} else if (parameters.getIntersectSettings().getIntersectType().equalsIgnoreCase("database")) {
+			IntersectResult intersectResult = geoTool.extractDataFromDatabase(candidate, parameters.getIntersectSettings().getDatabaseConnection(), parameters.getIntersectParameters().getCandidates(), parameters.getIntersectSettings().getIntersectData());
 			addDatabaseResultToFile(intersectResult, line);
 		}
 	}
@@ -67,26 +67,26 @@ public class Process implements Runnable {
 	 */
 	private Candidate readCoordinates(String line) {
 		Candidate candidate = new Candidate();
-		String delimiter = parameters.getFileConfiguration().getDelimiter();
+		String delimiter = parameters.getFileSettings().getDelimiter();
 		if (delimiter.equals("|")) {
 			delimiter = "\\|";
 		}
 		String[] elements = line.split(delimiter);
 		try {
-			candidate.setCoordinateX(Double.parseDouble(
-					elements[parameters.getFileConfiguration().getColumnX()]));
+			candidate.setCoordinateX(
+					Double.parseDouble(elements[parameters.getFileSettings().getColumnX()]));
 		} catch (Exception e) {
 			System.out.println("ERROR: invalid position or x coordinate");
 			System.exit(1);
 		}
 		try {
-			candidate.setCoordinateY(Double.parseDouble(
-					elements[parameters.getFileConfiguration().getColumnY()]));
+			candidate.setCoordinateY(
+					Double.parseDouble(elements[parameters.getFileSettings().getColumnY()]));
 		} catch (Exception e) {
 			System.out.println("ERROR: invalid position or y coordinate");
 			System.exit(1);
 		}
-		candidate.setCoordinateType(parameters.getFileConfiguration().getCoordinateType());
+		candidate.setCoordinateType(parameters.getFileSettings().getCoordinateType());
 		return candidate;
 	}
 
@@ -103,9 +103,9 @@ public class Process implements Runnable {
 
 				if (candidateNumber <= parameters.getIntersectParameters().getCandidates()) {
 
-					for (String data : parameters.getIntersectModel().getIntersectData()) {
+					for (String data : parameters.getIntersectSettings().getIntersectData()) {
 						shapefileResult += simpleFeature.getAttribute(data);
-						shapefileResult += parameters.getFileConfiguration().getDelimiter();
+						shapefileResult += parameters.getFileSettings().getDelimiter();
 					}
 					candidateNumber++;
 
@@ -131,9 +131,9 @@ public class Process implements Runnable {
 			while (intersectResult.getDbElements().next()) {
 
 				String databaseResult = "";
-				for (String data : parameters.getIntersectModel().getIntersectData()) {
+				for (String data : parameters.getIntersectSettings().getIntersectData()) {
 					databaseResult += intersectResult.getDbElements().getString(data);
-					databaseResult += parameters.getFileConfiguration().getDelimiter();
+					databaseResult += parameters.getFileSettings().getDelimiter();
 				}
 
 				databaseResult = databaseResult.substring(0, databaseResult.length() - 1);
@@ -153,7 +153,7 @@ public class Process implements Runnable {
 	 * @return string to be reported in output
 	 */
 	private String generateInputRecord(String line) {
-		return line + parameters.getFileConfiguration().getDelimiter();
+		return line + parameters.getFileSettings().getDelimiter();
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class Process implements Runnable {
 	 */
 	// spotless:off
 	private String generateOutputEmpty() {
-		return String.valueOf(parameters.getFileConfiguration().getDelimiter()).repeat(parameters.getIntersectModel().getIntersectData().size() - 1);
+		return String.valueOf(parameters.getFileSettings().getDelimiter()).repeat(parameters.getIntersectSettings().getIntersectData().size() - 1);
 	}
 	// spotless:on
 
@@ -173,8 +173,8 @@ public class Process implements Runnable {
 	 */
 	private void writeOutputToTheFile(String inputRecord, String reverseElements) {
 		try {
-			parameters.getFileConfiguration().getOutputFile().write(inputRecord + reverseElements + "\n");
-			parameters.getFileConfiguration().getOutputFile().flush();
+			parameters.getFileSettings().getOutputFile().write(inputRecord + reverseElements + "\n");
+			parameters.getFileSettings().getOutputFile().flush();
 		} catch (Exception e) {
 			System.out.println("ERROR: write to output file failed. Description: " + e.getMessage());
 			System.exit(1);
