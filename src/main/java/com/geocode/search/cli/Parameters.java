@@ -1,13 +1,13 @@
 package com.geocode.search.cli;
 
-import static com.geocode.search.cli.Descriptions.*;
+import static com.geocode.search.message.Alert.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.geocode.search.cli.yaml.YamlStructure;
-import com.geocode.search.cli.yaml.settings.FileSettings;
-import com.geocode.search.cli.yaml.settings.IntersectParameters;
-import com.geocode.search.cli.yaml.settings.IntersectSettings;
+import com.geocode.search.yaml.YamlStructure;
+import com.geocode.search.yaml.settings.FileSettings;
+import com.geocode.search.yaml.settings.IntersectParams;
+import com.geocode.search.yaml.settings.IntersectSettings;
 import java.io.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +23,7 @@ public class Parameters {
 
 	private FileSettings fileSettings = new FileSettings();
 	private IntersectSettings intersectSettings = new IntersectSettings();
-	private IntersectParameters intersectParameters = new IntersectParameters();
+	private IntersectParams intersectParams = new IntersectParams();
 	private int threads = 1;
 
 	/**
@@ -31,8 +31,7 @@ public class Parameters {
 	 * @param cmd command line
 	 * @return boolean value indicating whether the parameter is correct
 	 */
-	// spotless:off
-	public boolean readParams(CommandLine cmd) {
+	public boolean readInputParameters(CommandLine cmd) {
 		if (cmd.getOptionValue("thread") != null) {
 			threads = Integer.parseInt(cmd.getOptionValue("thread"));
 		}
@@ -40,17 +39,12 @@ public class Parameters {
 		String configFilePath = cmd.getOptionValue("config");
 		YamlStructure yamlStructure = readYaml(configFilePath);
 
-		boolean correctSettings = false;
-
 		if (yamlStructure != null) {
-			if (fileSettings.readConfigFromYaml(yamlStructure) && intersectSettings.readConfigFromYaml(yamlStructure)) {
-				intersectParameters.readConfigFromYaml(yamlStructure);
-				correctSettings = true;
-			}
+			return readConfigFromYaml(yamlStructure);
+		} else {
+			return false;
 		}
-		return correctSettings;
 	}
-	// spotless:on
 
 	/**
 	 * Method used to read the .yaml configuration file
@@ -63,9 +57,25 @@ public class Parameters {
 			mapper.findAndRegisterModules();
 			return mapper.readValue(new File(path), YamlStructure.class);
 		} catch (Exception e) {
-			System.out.println(ERROR_READ_CONFIG.description);
+			System.err.println(ERROR_READ_CONFIG.description);
 			return null;
 		}
+	}
+
+	/**
+	 * Method used to read yaml configuration parameters
+	 * @param yaml configuration properties
+	 * @return boolean value indicating whether the parameter is correct
+	 */
+	private boolean readConfigFromYaml(YamlStructure yaml) {
+		boolean correctSettings = fileSettings.readConfigFromYaml(yaml);
+		if (correctSettings) {
+			correctSettings = intersectSettings.readConfigFromYaml(yaml);
+		}
+		if (correctSettings) {
+			intersectParams.readConfigFromYaml(yaml);
+		}
+		return correctSettings;
 	}
 
 	/**
@@ -79,7 +89,8 @@ public class Parameters {
 				intersectSettings.getDatabaseConnection().closeConnection();
 			}
 		} catch (Exception e) {
-			System.out.println("Error while closing all connections. Description: " + e.getMessage());
+			System.err.println(ERROR_CLOSING_CONNECTIONS.description);
+			System.err.println("Description: " + e.getMessage());
 		}
 	}
 }

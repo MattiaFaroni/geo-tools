@@ -1,4 +1,4 @@
-package com.geocode.search.cli.yaml;
+package com.geocode.search.yaml;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

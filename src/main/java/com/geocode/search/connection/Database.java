@@ -1,5 +1,7 @@
 package com.geocode.search.connection;
 
+import static com.geocode.search.message.Alert.*;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Objects;
@@ -48,8 +50,7 @@ public class Database {
 			this.schema = elements[1];
 
 		} else {
-			System.out.println("Database url not valid");
-			System.out.println("Use this template: jdbc:postgresql://host:port/database?currentSchema=table,schema");
+			System.err.println(DATABASE_URL_INVALID.description);
 			System.exit(99);
 		}
 	}
@@ -63,7 +64,8 @@ public class Database {
 		try {
 			connection = DriverManager.getConnection(url, username, password);
 		} catch (Exception e) {
-			System.out.println("Error when connecting to the database. Description: " + e.getMessage());
+			System.err.println(ERROR_CONNECTION_TO_DATABASE.description);
+			System.err.println("Description: " + e.getMessage());
 		}
 	}
 
@@ -74,7 +76,8 @@ public class Database {
 		try {
 			connection.close();
 		} catch (Exception e) {
-			System.out.println("Error while closing database connection: Description: " + e.getMessage());
+			System.err.println(ERROR_CLOSE_DATABASE_CONNECTION.description);
+			System.err.println("Description: " + e.getMessage());
 		}
 	}
 }

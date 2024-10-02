@@ -1,9 +1,9 @@
-package com.geocode.search.cli.yaml.settings;
+package com.geocode.search.yaml.settings;
 
-import static com.geocode.search.cli.Descriptions.*;
+import static com.geocode.search.message.Alert.*;
 
-import com.geocode.search.cli.yaml.YamlStructure;
 import com.geocode.search.connection.Database;
+import com.geocode.search.yaml.YamlStructure;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,11 +47,13 @@ public class IntersectSettings {
 	 */
 	// spotless:off
 	private boolean checkIntersectType(YamlStructure yaml) {
-		if (yaml.getIntersect().getType().equals("shapefile") || yaml.getIntersect().getType().equals("database")) {
-			intersectType = yaml.getIntersect().getType();
+		YamlStructure.IntersectConf intersectConf = yaml.getIntersect();
+
+		if (intersectConf.getType().equals("shapefile") || intersectConf.getType().equals("database")) {
+			intersectType = intersectConf.getType();
 			return true;
 		} else {
-			System.out.println(INTERSECT_TYPE_INVALID.description);
+			System.err.println(INTERSECT_TYPE_INVALID.description);
 			return false;
 		}
 	}
@@ -69,7 +71,7 @@ public class IntersectSettings {
 			Collections.addAll(intersectData, intersectConf.getData().split(","));
 			return true;
 		} else {
-			System.out.println(INTERSECT_DATA_INVALID.description);
+			System.err.println(INTERSECT_DATA_INVALID.description);
 			return false;
 		}
 	}
@@ -88,11 +90,11 @@ public class IntersectSettings {
 			if (shapefilePath.exists() && !shapefilePath.isDirectory()) {
 				return true;
 			} else {
-				System.out.println(SHAPEFILE_PATH_INVALID.description);
+				System.err.println(SHAPEFILE_PATH_INVALID.description);
 				return false;
 			}
 		} else {
-			System.out.println(SHAPEFILE_PATH_INVALID.description);
+			System.err.println(SHAPEFILE_PATH_INVALID.description);
 			return false;
 		}
 	}
@@ -114,7 +116,7 @@ public class IntersectSettings {
 			return true;
 
 		} else {
-			System.out.println(DATABASE_CONNECTION_INVALID.description);
+			System.err.println(DATABASE_CONNECTION_INVALID.description);
 			return false;
 		}
 	}

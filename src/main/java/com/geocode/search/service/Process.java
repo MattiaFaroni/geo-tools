@@ -1,5 +1,7 @@
 package com.geocode.search.service;
 
+import static com.geocode.search.message.Alert.*;
+
 import com.geocode.search.cli.Parameters;
 import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.GeoTool;
@@ -36,7 +38,7 @@ public class Process implements Runnable {
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("Error when reading input csv file");
+			System.err.println(ERROR_READING_CSV.description);
 			throw new RuntimeException(e);
 		}
 	}
@@ -48,14 +50,17 @@ public class Process implements Runnable {
 	// spotless:off
 	private void executeIntersect(String line) {
 		Candidate candidate = readCoordinates(line);
+		IntersectResult intersectResult;
 
-		if (parameters.getIntersectSettings().getIntersectType().equalsIgnoreCase("shapefile")) {
-			IntersectResult intersectResult = geoTool.extractDataFromShapefile(candidate, parameters.getIntersectParameters());
-			generateShapefileOutput(intersectResult, line);
-
-		} else if (parameters.getIntersectSettings().getIntersectType().equalsIgnoreCase("database")) {
-			IntersectResult intersectResult = geoTool.extractDataFromDatabase(candidate, parameters.getIntersectSettings().getDatabaseConnection(), parameters.getIntersectParameters().getCandidates(), parameters.getIntersectSettings().getIntersectData());
-			addDatabaseResultToFile(intersectResult, line);
+		switch (parameters.getIntersectSettings().getIntersectType()) {
+			case "shapefile":
+				intersectResult = geoTool.extractDataFromShapefile(candidate, parameters.getIntersectParams());
+				generateShapefileOutput(intersectResult, line);
+				break;
+			case "database":
+				intersectResult = geoTool.extractDataFromDatabase(candidate, parameters.getIntersectSettings().getDatabaseConnection(), parameters.getIntersectParams().getCandidates(), parameters.getIntersectSettings().getIntersectData());
+				addDatabaseResultToFile(intersectResult, line);
+				break;
 		}
 	}
 	// spotless:on
@@ -65,6 +70,7 @@ public class Process implements Runnable {
 	 * @param line record of the input file to be processed
 	 * @return extracted candidate
 	 */
+	// spotless:off
 	private Candidate readCoordinates(String line) {
 		Candidate candidate = new Candidate();
 		String delimiter = parameters.getFileSettings().getDelimiter();
@@ -72,23 +78,24 @@ public class Process implements Runnable {
 			delimiter = "\\|";
 		}
 		String[] elements = line.split(delimiter);
+
 		try {
-			candidate.setCoordinateX(
-					Double.parseDouble(elements[parameters.getFileSettings().getColumnX()]));
+			candidate.setCoordinateX(Double.parseDouble(elements[parameters.getFileSettings().getColumnX()]));
 		} catch (Exception e) {
-			System.out.println("ERROR: invalid position or x coordinate");
+			System.err.println(INVALID_COORDINATE_X_POSITION.description);
 			System.exit(1);
 		}
 		try {
-			candidate.setCoordinateY(
-					Double.parseDouble(elements[parameters.getFileSettings().getColumnY()]));
+			candidate.setCoordinateY(Double.parseDouble(elements[parameters.getFileSettings().getColumnY()]));
 		} catch (Exception e) {
-			System.out.println("ERROR: invalid position or y coordinate");
+			System.err.println(INVALID_COORDINATE_Y_POSITION.description);
 			System.exit(1);
 		}
+
 		candidate.setCoordinateType(parameters.getFileSettings().getCoordinateType());
 		return candidate;
 	}
+	// spotless:on
 
 	/**
 	 * Method used to generate the output of the shapefile
@@ -101,7 +108,7 @@ public class Process implements Runnable {
 		if (!intersectResult.getShapeElements().isEmpty()) {
 			for (SimpleFeature simpleFeature : intersectResult.getShapeElements()) {
 
-				if (candidateNumber <= parameters.getIntersectParameters().getCandidates()) {
+				if (candidateNumber <= parameters.getIntersectParams().getCandidates()) {
 
 					for (String data : parameters.getIntersectSettings().getIntersectData()) {
 						shapefileResult += simpleFeature.getAttribute(data);
@@ -142,7 +149,8 @@ public class Process implements Runnable {
 			}
 			intersectResult.getDbElements().close();
 		} catch (Exception e) {
-			System.out.println("ERROR: extraction of data from the database failed. Description: " + e.getMessage());
+			System.err.println(ERROR_EXTRACT_DATA_DATABASE.description);
+			System.err.println("Description: " + e.getMessage());
 			System.exit(1);
 		}
 	}
@@ -175,8 +183,10 @@ public class Process implements Runnable {
 		try {
 			parameters.getFileSettings().getOutputFile().write(inputRecord + reverseElements + "\n");
 			parameters.getFileSettings().getOutputFile().flush();
+
 		} catch (Exception e) {
-			System.out.println("ERROR: write to output file failed. Description: " + e.getMessage());
+			System.err.println(ERROR_WRITE_FILE_OUTPUT.description);
+			System.err.println("Description: " + e.getMessage());
 			System.exit(1);
 		}
 	}

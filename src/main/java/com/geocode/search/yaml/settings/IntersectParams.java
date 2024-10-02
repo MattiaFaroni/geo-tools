@@ -1,13 +1,13 @@
-package com.geocode.search.cli.yaml.settings;
+package com.geocode.search.yaml.settings;
 
-import com.geocode.search.cli.yaml.YamlStructure;
+import com.geocode.search.yaml.YamlStructure;
 import lombok.*;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IntersectParameters {
+public class IntersectParams {
 
 	private double radius = 2;
 	private double increase = 2;

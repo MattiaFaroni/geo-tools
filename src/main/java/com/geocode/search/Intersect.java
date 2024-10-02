@@ -1,5 +1,7 @@
 package com.geocode.search;
 
+import static com.geocode.search.message.Alert.*;
+
 import com.geocode.search.cli.Parameters;
 import com.geocode.search.service.Process;
 import com.geocode.search.service.intersect.GeoTool;
@@ -105,7 +107,7 @@ public class Intersect {
 	// spotless:off
 	private static GeoTool readConfiguration(Parameters parameters, CommandLine cmd) {
 		GeoTool geoTool = new GeoTool();
-		if (parameters.readParams(cmd)) {
+		if (parameters.readInputParameters(cmd)) {
 			if (parameters.getIntersectSettings().getIntersectType().equals("shapefile")) {
 				geoTool = new GeoTool(parameters.getIntersectSettings().getShapefilePath().toString(), "N");
 			}
@@ -182,7 +184,8 @@ public class Intersect {
 			createOutputHeader(inputHeader, parameters);
 
 		} catch (Exception e) {
-			System.err.println("Error reading input header: " + e.getMessage());
+			System.err.println(ERROR_READING_INPUT_HEADER.description);
+			System.err.println("Description:" + e.getMessage());
 		}
 	}
 	// spotless:on
@@ -204,7 +207,8 @@ public class Intersect {
 			parameters.getFileSettings().getOutputFile().flush();
 
 		} catch (Exception e) {
-			System.out.println("Error when create output header. Description: " + e.getMessage());
+			System.err.println(ERROR_CREATE_OUTPUT_HEADER.description);
+			System.err.println("Description:" + e.getMessage());
 			System.exit(1);
 		}
 	}
@@ -219,7 +223,8 @@ public class Intersect {
 				thread.join();
 			}
 		} catch (Exception e) {
-			System.out.println("Error: waiting for completion of all threads failed. Description: " + e.getMessage());
+			System.err.println(ERROR_WAIT_ALL_THREAD.description);
+			System.err.println("Description: " + e.getMessage());
 			System.exit(1);
 		}
 	}

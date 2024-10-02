@@ -1,10 +1,12 @@
 package com.geocode.search.service.intersect;
 
-import com.geocode.search.cli.yaml.settings.IntersectParameters;
+import static com.geocode.search.message.Alert.*;
+
 import com.geocode.search.connection.Database;
 import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.shapefile.ShapeData;
 import com.geocode.search.service.output.IntersectResult;
+import com.geocode.search.yaml.settings.IntersectParams;
 import java.io.File;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -59,7 +61,8 @@ public class GeoTool {
 			System.out.println("- End upload shapefile " + file.getName() + ": " + Calendar.getInstance().getTime());
 
 		} catch (Exception e) {
-			System.out.println("- Error during upload shapefile: " + e.getMessage());
+			System.err.println(ERROR_UPLOAD_SHAPEFILE.description);
+			System.err.println("Description: " + e.getMessage());
 			cachedSourceVect.add(source);
 			schemaVect.add(schema);
 		}
@@ -88,15 +91,15 @@ public class GeoTool {
 				}
 			}
 
-			try (FeatureIterator<SimpleFeature> features =
-					shapeData.getCollection().features()) {
+			try (FeatureIterator<SimpleFeature> features = shapeData.getCollection().features()) {
 				while (features.hasNext()) {
 					intersectResult.getShapeElements().add(features.next());
 				}
 			}
 
 		} catch (Exception e) {
-			System.out.println("Error during intersect shapefile: " + e.getMessage());
+			System.err.println(ERROR_INTERSECT_SHAPEFILE.description);
+			System.err.println("Description: " + e.getMessage());
 			System.exit(1);
 		}
 		return intersectResult;
@@ -106,22 +109,22 @@ public class GeoTool {
 	/**
 	 * Method used to project coordinates onto the shapefile and extract n candidates
 	 * @param candidate candidate to be projected on the shapefile
-	 * @param intersectParameters settings used for research
+	 * @param intersectParams settings used for research
 	 * @return candidates extracted from the shapefile
 	 */
 	// spotless:off
-	public IntersectResult extractDataFromShapefile(Candidate candidate, IntersectParameters intersectParameters) {
+	public IntersectResult extractDataFromShapefile(Candidate candidate, IntersectParams intersectParams) {
 
 		IntersectResult intersectResult = new IntersectResult();
 		try {
 			double lap = 1;
 			double distance = 0;
-			double increase = 0.00001 * intersectParameters.getIncrease();
+			double increase = 0.00001 * intersectParams.getIncrease();
 			intersectResult = intersectShapefile(candidate, intersectResult);
 
-			for (int i = 1; i < intersectParameters.getAttempts(); i++) {
-				if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
-				if (distance >= intersectParameters.getMaxDistance()) break;
+			for (int i = 1; i < intersectParams.getAttempts(); i++) {
+				if (intersectResult.getShapeElements().size() == intersectParams.getCandidates()) break;
+				if (distance >= intersectParams.getMaxDistance()) break;
 
 				for (double x = candidate.getCoordinateX() - increase;	x <= candidate.getCoordinateX() + increase;	x += increase / lap) {
 
@@ -129,18 +132,19 @@ public class GeoTool {
 
 						Candidate point = new Candidate(x, y);
 						intersectResult = intersectShapefile(point, intersectResult);
-						if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
+						if (intersectResult.getShapeElements().size() == intersectParams.getCandidates()) break;
 					}
 
-					if (intersectResult.getShapeElements().size() == intersectParameters.getCandidates()) break;
+					if (intersectResult.getShapeElements().size() == intersectParams.getCandidates()) break;
 				}
 
-				distance += intersectParameters.getIncrease();
-				increase += 0.00001 * intersectParameters.getIncrease();
+				distance += intersectParams.getIncrease();
+				increase += 0.00001 * intersectParams.getIncrease();
 				lap++;
 			}
 		} catch (Exception e) {
-			System.out.println("Error when extracting data from shapefile: " + e.getMessage());
+			System.err.println(ERROR_EXTRACT_DATA_SHAPEFILE.description);
+			System.err.println("Description: " + e.getMessage());
 			System.exit(1);
 		}
 		return intersectResult;
@@ -151,6 +155,7 @@ public class GeoTool {
 	 * Method used to project the coordinates onto the database and extract the specified columns
 	 * @param candidate candidate to be projected on the database
 	 * @param database database connection
+	 * @param limit number of candidates to extract
 	 * @param columns database columns
 	 * @return list of candidates close to the given point
 	 */
@@ -182,7 +187,7 @@ public class GeoTool {
 	 * Method used to project coordinates onto the database and extract n candidates given in the limit parameter
 	 * @param candidate candidate to be projected on the database
 	 * @param database database connection
-	 * @param limit maximum number of candidates to be drawn
+	 * @param limit number of candidates to extract
 	 * @return list of candidates close to the given point
 	 */
 	public IntersectResult extractDataFromDatabase(Candidate candidate, Database database, double limit) {
@@ -218,11 +223,10 @@ public class GeoTool {
 			if (database.getConnection() != null) {
 				Statement stmt = database.getConnection().createStatement();
 				intersectResult.setDbElements(stmt.executeQuery(query));
-			} else {
-				System.out.println("Error during database connection.");
 			}
 		} catch (Exception e) {
-			System.out.println("Error during intersect database: " + e.getMessage());
+			System.err.println(ERROR_INTERSECT_DATABASE.description);
+			System.err.println("Description: " + e.getMessage());
 		}
 		return intersectResult;
 	}
