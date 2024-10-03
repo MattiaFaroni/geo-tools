@@ -14,10 +14,11 @@ The goal of this project is to allow the extraction of information contained wit
   Note: One or more candidates can be extracts for both extraction
 
 ## Configuration
+This project can be used as a library to use the functions it exposes.  
 To configure the coordinates you can use the `Candidate` class.  
 In addition to this you can also configure its type, which by default is 4326.  
 When extracting data from shapefile, it is possible to set some configuration parameters.  
-Initializing the `IntersectParameters` class you can configure the following variables, otherwise they will acquire the default value:  
+Initializing the `IntersectParames` class you can configure the following variables, otherwise they will acquire the default value:  
 
 | Variable     | Default value | Description                                |
 |--------------|---------------|--------------------------------------------|
@@ -45,39 +46,35 @@ The parameters needed to run the project are shown below.
 
 
 The only required parameter to run the batch process is `config`, which determines the location of the configuration file.
-An example is: C:/Documents/GeoTools/config.properties.
+An example is: C:/Documents/GeoTools/config.yaml.
 Below is a sample configuration file:
 
-```properties
-#[input file configuration]
-geotools.input_file=Input file to be processed
-geotools.delimiter=Delimiter used in input file to divide columns
-geotools.header=Indicates whether the header is present or not (S/N)
-geotools.column_x=Longitude column (The count starts from 0)
-geotools.column_y=Latitude column (The count starts from 0)
-geotools.coordinate_type=Type of coordinates (default: 4326)
-geotools.output_file=Output files to be generated
-
-#[intersect model]
-geotools.intersect_type=Type of intersect to be performed (database/shapefile)
-geotools.intersect_data=Columns of the database or shapefile to be extracted, separated by commas
-geotools.shapefile_path=Path to the shapefile (e.g C./Documents/shapefile.shp)
-geotools.database_connection=Database connection url (Example below)
-geotools.database_username=Database username
-geotools.database_password=Database password
-
-#[intersect parameters]
-geotools.intersect_radius=Radius in meters from the input coordinate
-geotools.intersect_increase=Radius increase in meters
-geotools.intersect_attempts=Number of search attempts
-geotools.intersect_candidates=Maximum number of candidates drawn
-geotools.intersect_maxDistance=Maximum search radius
+```yaml
+inputFile: Input file to be processed
+outputFile: Output file to be generated
+delimiter: Delimiter used in input file to divide columns (Put it in quotes es. "|")
+header: Indicates whether the header is present or not (S/N)
+columnX: Longitude column (The count starts from 0)
+columnY: Latitude column (The count starts from 0)
+coordinateType: Type of coordinates (default 4326)
+intersect:
+  type: Type of intersect to be performed (database/shapefile)
+  data: Columns of the database or shapefile to be extracted, separated by commas
+  shapefile:
+    path: Path to the shapefile (e.g C./Documents/shapefile.shp)
+  database:
+    url: Database connection url (Example below)
+    username: Database username
+    password: Database password
+  parameters:
+    radius: Radius in meters from the input coordinate
+    increase: Radius increase in meters
+    attempts: Number of search attempts
+    candidates: Maximum number of candidates drawn
+    maxDistance: Maximum search radius
 ```
-**Note**: If a shapefile is used, it is not necessary to specify database properties and contrary.
-
-  * In the Intersect with shapefile, the intersect parameters are not mandatory to be set, if they are not set they take on the default value indicated in the table above.
-
+**Note**: If you use a shapefile, you do not need to specify database properties and vice versa.
 
 * In the Intersect with database the database connection URL must be in the following format:   
 **jdbc:postgresql://host:port/database?currentSchema=table,schema**  
-In the intersect parameters section of the configuration file, only the `geotools.intersect_candidates` property will be used while all the others will not be considered.
+In the intersect parameters section of the yaml file, only the `candidates` property will be used while all the others will not be considered when using intersection on database.
