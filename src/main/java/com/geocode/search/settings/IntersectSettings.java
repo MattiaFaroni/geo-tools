@@ -1,8 +1,9 @@
-package com.geocode.search.yaml.settings;
+package com.geocode.search.settings;
 
 import static com.geocode.search.message.Alert.*;
 
 import com.geocode.search.connection.Database;
+import com.geocode.search.logging.Logger;
 import com.geocode.search.yaml.YamlStructure;
 import java.io.File;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IntersectSettings {
+public class IntersectSettings extends Logger {
 
 	private String intersectType;
 	private ArrayList<String> intersectData = new ArrayList<>();
@@ -53,7 +54,7 @@ public class IntersectSettings {
 			intersectType = intersectConf.getType();
 			return true;
 		} else {
-			System.err.println(INTERSECT_TYPE_INVALID.description);
+			printError(INTERSECT_TYPE_INVALID.description);
 			return false;
 		}
 	}
@@ -71,7 +72,7 @@ public class IntersectSettings {
 			Collections.addAll(intersectData, intersectConf.getData().split(","));
 			return true;
 		} else {
-			System.err.println(INTERSECT_DATA_INVALID.description);
+			printError(INTERSECT_DATA_INVALID.description);
 			return false;
 		}
 	}
@@ -90,11 +91,11 @@ public class IntersectSettings {
 			if (shapefilePath.exists() && !shapefilePath.isDirectory()) {
 				return true;
 			} else {
-				System.err.println(SHAPEFILE_PATH_INVALID.description);
+				printError(SHAPEFILE_PATH_INVALID.description);
 				return false;
 			}
 		} else {
-			System.err.println(SHAPEFILE_PATH_INVALID.description);
+			printError(SHAPEFILE_PATH_INVALID.description);
 			return false;
 		}
 	}
@@ -116,7 +117,7 @@ public class IntersectSettings {
 			return true;
 
 		} else {
-			System.err.println(DATABASE_CONNECTION_INVALID.description);
+			printError(DATABASE_CONNECTION_INVALID.description);
 			return false;
 		}
 	}

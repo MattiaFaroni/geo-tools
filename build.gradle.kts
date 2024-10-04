@@ -3,6 +3,7 @@ import java.util.*
 val geotoolsVersion: String by project
 val postgresVersion: String by project
 val lombokVersion: String by project
+val log4jVersion: String by project
 
 plugins {
     id("java")
@@ -31,6 +32,9 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("commons-cli:commons-cli:1.9.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.0")
+    implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
 }
 
 tasks.jar {

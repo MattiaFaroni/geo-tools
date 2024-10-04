@@ -4,10 +4,11 @@ import static com.geocode.search.message.Alert.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.geocode.search.logging.Logger;
+import com.geocode.search.settings.FileSettings;
+import com.geocode.search.settings.IntersectParams;
+import com.geocode.search.settings.IntersectSettings;
 import com.geocode.search.yaml.YamlStructure;
-import com.geocode.search.yaml.settings.FileSettings;
-import com.geocode.search.yaml.settings.IntersectParams;
-import com.geocode.search.yaml.settings.IntersectSettings;
 import java.io.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ import org.apache.commons.cli.CommandLine;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Parameters {
+public class Parameters extends Logger {
 
 	private FileSettings fileSettings = new FileSettings();
 	private IntersectSettings intersectSettings = new IntersectSettings();
@@ -57,7 +58,7 @@ public class Parameters {
 			mapper.findAndRegisterModules();
 			return mapper.readValue(new File(path), YamlStructure.class);
 		} catch (Exception e) {
-			System.err.println(ERROR_READ_CONFIG.description);
+			printError(ERROR_READ_CONFIG.description, e.getMessage());
 			return null;
 		}
 	}
@@ -89,8 +90,7 @@ public class Parameters {
 				intersectSettings.getDatabaseConnection().closeConnection();
 			}
 		} catch (Exception e) {
-			System.err.println(ERROR_CLOSING_CONNECTIONS.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_CLOSING_CONNECTIONS.description, e.getMessage());
 		}
 	}
 }

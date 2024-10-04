@@ -1,4 +1,4 @@
-package com.geocode.search.yaml.settings;
+package com.geocode.search.settings;
 
 import com.geocode.search.yaml.YamlStructure;
 import lombok.*;

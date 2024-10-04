@@ -3,10 +3,11 @@ package com.geocode.search.service.intersect;
 import static com.geocode.search.message.Alert.*;
 
 import com.geocode.search.connection.Database;
+import com.geocode.search.logging.Logger;
 import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.shapefile.ShapeData;
 import com.geocode.search.service.output.IntersectResult;
-import com.geocode.search.yaml.settings.IntersectParams;
+import com.geocode.search.settings.IntersectParams;
 import java.io.File;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 @Getter
 @Setter
 @NoArgsConstructor
-public class GeoTool {
+public class GeoTool extends Logger {
 
 	private static SimpleFeatureSource source;
 	private static SimpleFeatureType schema;
@@ -46,7 +47,7 @@ public class GeoTool {
 
 		File file = new File(fileName);
 		try {
-			System.out.println("- Start upload shapefile " + file.getName() + ": " + Calendar.getInstance().getTime());
+			printInfo("- Start upload shapefile " + file.getName() + ": " + Calendar.getInstance().getTime());
 			FileDataStore myData = FileDataStoreFinder.getDataStore(file);
 			source = myData.getFeatureSource();
 			schema = source.getSchema();
@@ -58,11 +59,10 @@ public class GeoTool {
 				cachedSourceVect.add(source);
 				schemaVect.add(schema);
 			}
-			System.out.println("- End upload shapefile " + file.getName() + ": " + Calendar.getInstance().getTime());
+			printInfo("- End upload shapefile " + file.getName() + ": " + Calendar.getInstance().getTime());
 
 		} catch (Exception e) {
-			System.err.println(ERROR_UPLOAD_SHAPEFILE.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_UPLOAD_SHAPEFILE.description, e.getMessage());
 			cachedSourceVect.add(source);
 			schemaVect.add(schema);
 		}
@@ -98,8 +98,7 @@ public class GeoTool {
 			}
 
 		} catch (Exception e) {
-			System.err.println(ERROR_INTERSECT_SHAPEFILE.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_INTERSECT_SHAPEFILE.description, e.getMessage());
 			System.exit(1);
 		}
 		return intersectResult;
@@ -143,8 +142,7 @@ public class GeoTool {
 				lap++;
 			}
 		} catch (Exception e) {
-			System.err.println(ERROR_EXTRACT_DATA_SHAPEFILE.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_EXTRACT_DATA_SHAPEFILE.description, e.getMessage());
 			System.exit(1);
 		}
 		return intersectResult;
@@ -225,8 +223,7 @@ public class GeoTool {
 				intersectResult.setDbElements(stmt.executeQuery(query));
 			}
 		} catch (Exception e) {
-			System.err.println(ERROR_INTERSECT_DATABASE.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_INTERSECT_DATABASE.description, e.getMessage());
 		}
 		return intersectResult;
 	}

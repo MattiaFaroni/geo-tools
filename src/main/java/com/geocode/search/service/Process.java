@@ -3,6 +3,7 @@ package com.geocode.search.service;
 import static com.geocode.search.message.Alert.*;
 
 import com.geocode.search.cli.Parameters;
+import com.geocode.search.logging.Logger;
 import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.GeoTool;
 import com.geocode.search.service.output.IntersectResult;
@@ -17,7 +18,7 @@ import org.opengis.feature.simple.SimpleFeature;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Process implements Runnable {
+public class Process extends Logger implements Runnable {
 
 	private Parameters parameters;
 	private GeoTool geoTool;
@@ -33,13 +34,12 @@ public class Process implements Runnable {
 				rowCount++;
 				synchronized (this) {
 					if (rowCount % 1000 == 0) {
-						System.out.println("Processed records: " + rowCount);
+						printInfo("Processed records: " + rowCount);
 					}
 				}
 			}
 		} catch (IOException e) {
-			System.err.println(ERROR_READING_CSV.description);
-			throw new RuntimeException(e);
+			printError(ERROR_READING_CSV.description, e.getMessage());
 		}
 	}
 
@@ -82,13 +82,13 @@ public class Process implements Runnable {
 		try {
 			candidate.setCoordinateX(Double.parseDouble(elements[parameters.getFileSettings().getColumnX()]));
 		} catch (Exception e) {
-			System.err.println(INVALID_COORDINATE_X_POSITION.description);
+			printError(INVALID_COORDINATE_X_POSITION.description);
 			System.exit(1);
 		}
 		try {
 			candidate.setCoordinateY(Double.parseDouble(elements[parameters.getFileSettings().getColumnY()]));
 		} catch (Exception e) {
-			System.err.println(INVALID_COORDINATE_Y_POSITION.description);
+			printError(INVALID_COORDINATE_Y_POSITION.description);
 			System.exit(1);
 		}
 
@@ -148,9 +148,9 @@ public class Process implements Runnable {
 				writeOutputToTheFile(inputRecord, databaseResult);
 			}
 			intersectResult.getDbElements().close();
+
 		} catch (Exception e) {
-			System.err.println(ERROR_EXTRACT_DATA_DATABASE.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_EXTRACT_DATA_DATABASE.description, e.getMessage());
 			System.exit(1);
 		}
 	}
@@ -185,8 +185,7 @@ public class Process implements Runnable {
 			parameters.getFileSettings().getOutputFile().flush();
 
 		} catch (Exception e) {
-			System.err.println(ERROR_WRITE_FILE_OUTPUT.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_WRITE_FILE_OUTPUT.description, e.getMessage());
 			System.exit(1);
 		}
 	}

@@ -2,6 +2,7 @@ package com.geocode.search.connection;
 
 import static com.geocode.search.message.Alert.*;
 
+import com.geocode.search.logging.Logger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Objects;
@@ -16,7 +17,7 @@ import org.postgresql.PGProperty;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Database {
+public class Database extends Logger {
 
 	private String url;
 	private String username;
@@ -50,7 +51,7 @@ public class Database {
 			this.schema = elements[1];
 
 		} else {
-			System.err.println(DATABASE_URL_INVALID.description);
+			printError(DATABASE_URL_INVALID.description);
 			System.exit(99);
 		}
 	}
@@ -64,8 +65,7 @@ public class Database {
 		try {
 			connection = DriverManager.getConnection(url, username, password);
 		} catch (Exception e) {
-			System.err.println(ERROR_CONNECTION_TO_DATABASE.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_CONNECTION_TO_DATABASE.description, e.getMessage());
 		}
 	}
 
@@ -76,8 +76,7 @@ public class Database {
 		try {
 			connection.close();
 		} catch (Exception e) {
-			System.err.println(ERROR_CLOSE_DATABASE_CONNECTION.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_CLOSE_DATABASE_CONNECTION.description, e.getMessage());
 		}
 	}
 }

@@ -1,7 +1,8 @@
-package com.geocode.search.yaml.settings;
+package com.geocode.search.settings;
 
 import static com.geocode.search.message.Alert.*;
 
+import com.geocode.search.logging.Logger;
 import com.geocode.search.yaml.YamlStructure;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,7 +17,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileSettings {
+public class FileSettings extends Logger {
 
 	private BufferedReader inputFile;
 	private String delimiter;
@@ -56,7 +57,7 @@ public class FileSettings {
 		try {
 			return new BufferedReader(new FileReader(yaml.getInputFile(), StandardCharsets.UTF_8));
 		} catch (Exception e) {
-			System.err.println(INPUT_PATH_INVALID.description);
+			printError(INPUT_PATH_INVALID.description);
 			return null;
 		}
 	}
@@ -70,7 +71,7 @@ public class FileSettings {
 		try {
 			return new FileWriter(yaml.getOutputFile(), StandardCharsets.UTF_8);
 		} catch (Exception e) {
-			System.err.println(OUTPUT_FILE_INVALID.description);
+			printError(OUTPUT_FILE_INVALID.description);
 			return null;
 		}
 	}
@@ -85,7 +86,7 @@ public class FileSettings {
 			delimiter = yaml.getDelimiter();
 			return true;
 		} else {
-			System.err.println(DELIMITER_INVALID.description);
+			printError(DELIMITER_INVALID.description);
 			return false;
 		}
 	}
@@ -104,7 +105,7 @@ public class FileSettings {
 			header = yaml.getHeader();
 			return true;
 		} else {
-			System.err.println(HEADER_INVALID.description);
+			printError(HEADER_INVALID.description);
 			return false;
 		}
 	}

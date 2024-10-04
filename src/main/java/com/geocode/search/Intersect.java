@@ -3,15 +3,14 @@ package com.geocode.search;
 import static com.geocode.search.message.Alert.*;
 
 import com.geocode.search.cli.Parameters;
+import com.geocode.search.logging.Logger;
 import com.geocode.search.service.Process;
 import com.geocode.search.service.intersect.GeoTool;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Properties;
 import org.apache.commons.cli.*;
 
-public class Intersect {
+public class Intersect extends Logger {
 
 	public static void main(String[] args) {
 
@@ -23,7 +22,7 @@ public class Intersect {
 			CommandLine cmd = parser.parse(options, args);
 
 			if (cmd.hasOption("version")) {
-				System.out.println("Version: " + getProjectVersion());
+				printInfo("Version: " + getProjectVersion());
 
 			} else if (cmd.hasOption("config")) {
 				readInput(cmd, options, helper);
@@ -32,12 +31,12 @@ public class Intersect {
 				printHelper(options, helper);
 
 			} else {
-				System.out.println("Define the path with the configuration file.");
+				printInfo("Define the path with the configuration file.");
 				printHelper(options, helper);
 			}
 
 		} catch (ParseException e) {
-			System.err.println("Error: " + e.getMessage());
+			printError(e.getMessage());
 			printHelper(options, helper);
 		}
 	}
@@ -54,7 +53,7 @@ public class Intersect {
 		} else {
 			Parameters parameters = new Parameters();
 			GeoTool geoTool = readConfiguration(parameters, cmd);
-			startProcessing(parameters, geoTool);
+			launchProcessing(parameters, geoTool);
 			parameters.closeAllConnection();
 		}
 	}
@@ -119,40 +118,18 @@ public class Intersect {
 	// spotless:on
 
 	/**
-	 * Method used to start the process
+	 * Method used to launch the process
 	 * @param parameters configuration parameters
 	 * @param geoTool geo tools elements
 	 */
-	private static void startProcessing(Parameters parameters, GeoTool geoTool) {
-		printStart();
+	private static void launchProcessing(Parameters parameters, GeoTool geoTool) {
+		printInfo("Start process");
 		if (parameters.getFileSettings().getHeader().equalsIgnoreCase("S")) {
 			addHeader(parameters);
 		}
 		ArrayList<Thread> threads = launchThreads(parameters, geoTool);
 		waitThreads(threads);
-		printEnd();
-	}
-
-	/**
-	 * Method used to print the start of the process
-	 */
-	private static void printStart() {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime now = LocalDateTime.now();
-		System.out.println("----------------------------------");
-		System.out.println("Start process: " + formatter.format(now));
-		System.out.println("----------------------------------");
-	}
-
-	/**
-	 * Method used to print the end of the process
-	 */
-	private static void printEnd() {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-		LocalDateTime now = LocalDateTime.now();
-		System.out.println("----------------------------------");
-		System.out.println("End process:   " + formatter.format(now));
-		System.out.println("----------------------------------");
+		printInfo("End process");
 	}
 
 	/**
@@ -176,7 +153,6 @@ public class Intersect {
 	 * Method used to add header to output file
 	 * @param parameters configuration parameters
 	 */
-	// spotless:off
 	private static void addHeader(Parameters parameters) {
 		try {
 			String inputHeader = parameters.getFileSettings().getInputFile().readLine();
@@ -184,11 +160,9 @@ public class Intersect {
 			createOutputHeader(inputHeader, parameters);
 
 		} catch (Exception e) {
-			System.err.println(ERROR_READING_INPUT_HEADER.description);
-			System.err.println("Description:" + e.getMessage());
+			printError(ERROR_READING_INPUT_HEADER.description, e.getMessage());
 		}
 	}
-	// spotless:on
 
 	/**
 	 * Method used for creating the output header
@@ -207,8 +181,7 @@ public class Intersect {
 			parameters.getFileSettings().getOutputFile().flush();
 
 		} catch (Exception e) {
-			System.err.println(ERROR_CREATE_OUTPUT_HEADER.description);
-			System.err.println("Description:" + e.getMessage());
+			printError(ERROR_CREATE_OUTPUT_HEADER.description, e.getMessage());
 			System.exit(1);
 		}
 	}
@@ -223,8 +196,7 @@ public class Intersect {
 				thread.join();
 			}
 		} catch (Exception e) {
-			System.err.println(ERROR_WAIT_ALL_THREAD.description);
-			System.err.println("Description: " + e.getMessage());
+			printError(ERROR_WAIT_ALL_THREAD.description, e.getMessage());
 			System.exit(1);
 		}
 	}
