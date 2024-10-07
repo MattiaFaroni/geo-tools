@@ -4,6 +4,7 @@ import static com.geocode.search.message.Alert.*;
 
 import com.geocode.search.logging.Logger;
 import com.geocode.search.yaml.YamlStructure;
+import io.sentry.Sentry;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -58,6 +59,7 @@ public class FileSettings extends Logger {
 			return new BufferedReader(new FileReader(yaml.getInputFile(), StandardCharsets.UTF_8));
 		} catch (Exception e) {
 			printError(INPUT_PATH_INVALID.description);
+			Sentry.captureException(e);
 			return null;
 		}
 	}
@@ -72,6 +74,7 @@ public class FileSettings extends Logger {
 			return new FileWriter(yaml.getOutputFile(), StandardCharsets.UTF_8);
 		} catch (Exception e) {
 			printError(OUTPUT_FILE_INVALID.description);
+			Sentry.captureException(e);
 			return null;
 		}
 	}

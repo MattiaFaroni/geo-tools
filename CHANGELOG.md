@@ -1,5 +1,10 @@
 ## Version 1.0.1
+### 2024-10-07
+- Added exception catching via Sentry
+- Sentry 4.11.0
+
 ### 2024-10-04
+- Log message handling via Log4j2
 - Log4j2 2.24.1
 
 ### 2024-09-29

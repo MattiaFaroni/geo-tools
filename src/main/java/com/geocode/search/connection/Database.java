@@ -3,6 +3,7 @@ package com.geocode.search.connection;
 import static com.geocode.search.message.Alert.*;
 
 import com.geocode.search.logging.Logger;
+import io.sentry.Sentry;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Objects;
@@ -66,6 +67,7 @@ public class Database extends Logger {
 			connection = DriverManager.getConnection(url, username, password);
 		} catch (Exception e) {
 			printError(ERROR_CONNECTION_TO_DATABASE.description, e.getMessage());
+			Sentry.captureException(e);
 		}
 	}
 
@@ -77,6 +79,7 @@ public class Database extends Logger {
 			connection.close();
 		} catch (Exception e) {
 			printError(ERROR_CLOSE_DATABASE_CONNECTION.description, e.getMessage());
+			Sentry.captureException(e);
 		}
 	}
 }

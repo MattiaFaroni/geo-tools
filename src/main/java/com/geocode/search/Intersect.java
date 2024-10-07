@@ -6,17 +6,21 @@ import com.geocode.search.cli.Parameters;
 import com.geocode.search.logging.Logger;
 import com.geocode.search.service.Process;
 import com.geocode.search.service.intersect.GeoTool;
+import io.sentry.Sentry;
 import java.util.ArrayList;
 import java.util.Properties;
 import org.apache.commons.cli.*;
 
 public class Intersect extends Logger {
 
+	private static String SENTRY_DSN;
+
 	public static void main(String[] args) {
 
 		Options options = setOptions();
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter helper = new HelpFormatter();
+		SentryInitialized();
 
 		try {
 			CommandLine cmd = parser.parse(options, args);
@@ -37,7 +41,21 @@ public class Intersect extends Logger {
 
 		} catch (ParseException e) {
 			printError(e.getMessage());
+			Sentry.captureException(e);
 			printHelper(options, helper);
+		}
+	}
+
+	/**
+	 * Method used to initialize Sentry
+	 */
+	private static void SentryInitialized() {
+		if (System.getenv("dsn") != null && !System.getenv("dsn").isEmpty()) {
+			SENTRY_DSN = System.getenv("dsn");
+			Sentry.init(options -> {
+				options.setDsn(SENTRY_DSN);
+				options.setTracesSampleRate(1.0);
+			});
 		}
 	}
 
@@ -83,6 +101,7 @@ public class Intersect extends Logger {
 			properties.load(Intersect.class.getResourceAsStream("/build.properties"));
 			return properties.getProperty("version");
 		} catch (Exception e) {
+			Sentry.captureException(e);
 			return "Unable to retrieve project version";
 		}
 	}
@@ -161,6 +180,7 @@ public class Intersect extends Logger {
 
 		} catch (Exception e) {
 			printError(ERROR_READING_INPUT_HEADER.description, e.getMessage());
+			Sentry.captureException(e);
 		}
 	}
 
@@ -182,6 +202,7 @@ public class Intersect extends Logger {
 
 		} catch (Exception e) {
 			printError(ERROR_CREATE_OUTPUT_HEADER.description, e.getMessage());
+			Sentry.captureException(e);
 			System.exit(1);
 		}
 	}
@@ -197,6 +218,7 @@ public class Intersect extends Logger {
 			}
 		} catch (Exception e) {
 			printError(ERROR_WAIT_ALL_THREAD.description, e.getMessage());
+			Sentry.captureException(e);
 			System.exit(1);
 		}
 	}

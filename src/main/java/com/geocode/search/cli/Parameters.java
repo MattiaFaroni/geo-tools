@@ -9,6 +9,7 @@ import com.geocode.search.settings.FileSettings;
 import com.geocode.search.settings.IntersectParams;
 import com.geocode.search.settings.IntersectSettings;
 import com.geocode.search.yaml.YamlStructure;
+import io.sentry.Sentry;
 import java.io.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -59,6 +60,7 @@ public class Parameters extends Logger {
 			return mapper.readValue(new File(path), YamlStructure.class);
 		} catch (Exception e) {
 			printError(ERROR_READ_CONFIG.description, e.getMessage());
+			Sentry.captureException(e);
 			return null;
 		}
 	}
@@ -91,6 +93,7 @@ public class Parameters extends Logger {
 			}
 		} catch (Exception e) {
 			printError(ERROR_CLOSING_CONNECTIONS.description, e.getMessage());
+			Sentry.captureException(e);
 		}
 	}
 }

@@ -7,6 +7,7 @@ import com.geocode.search.logging.Logger;
 import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.GeoTool;
 import com.geocode.search.service.output.IntersectResult;
+import io.sentry.Sentry;
 import java.io.IOException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,6 +41,7 @@ public class Process extends Logger implements Runnable {
 			}
 		} catch (IOException e) {
 			printError(ERROR_READING_CSV.description, e.getMessage());
+			Sentry.captureException(e);
 		}
 	}
 
@@ -151,6 +153,7 @@ public class Process extends Logger implements Runnable {
 
 		} catch (Exception e) {
 			printError(ERROR_EXTRACT_DATA_DATABASE.description, e.getMessage());
+			Sentry.captureException(e);
 			System.exit(1);
 		}
 	}
@@ -186,6 +189,7 @@ public class Process extends Logger implements Runnable {
 
 		} catch (Exception e) {
 			printError(ERROR_WRITE_FILE_OUTPUT.description, e.getMessage());
+			Sentry.captureException(e);
 			System.exit(1);
 		}
 	}

@@ -8,6 +8,7 @@ import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.shapefile.ShapeData;
 import com.geocode.search.service.output.IntersectResult;
 import com.geocode.search.settings.IntersectParams;
+import io.sentry.Sentry;
 import java.io.File;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ public class GeoTool extends Logger {
 
 		} catch (Exception e) {
 			printError(ERROR_UPLOAD_SHAPEFILE.description, e.getMessage());
+			Sentry.captureException(e);
 			cachedSourceVect.add(source);
 			schemaVect.add(schema);
 		}
@@ -99,6 +101,7 @@ public class GeoTool extends Logger {
 
 		} catch (Exception e) {
 			printError(ERROR_INTERSECT_SHAPEFILE.description, e.getMessage());
+			Sentry.captureException(e);
 			System.exit(1);
 		}
 		return intersectResult;
@@ -143,6 +146,7 @@ public class GeoTool extends Logger {
 			}
 		} catch (Exception e) {
 			printError(ERROR_EXTRACT_DATA_SHAPEFILE.description, e.getMessage());
+			Sentry.captureException(e);
 			System.exit(1);
 		}
 		return intersectResult;
@@ -224,6 +228,7 @@ public class GeoTool extends Logger {
 			}
 		} catch (Exception e) {
 			printError(ERROR_INTERSECT_DATABASE.description, e.getMessage());
+			Sentry.captureException(e);
 		}
 		return intersectResult;
 	}
