@@ -3,6 +3,7 @@
 [![Java](https://img.shields.io/badge/Java-ED7B09?style=for-the-badge&logo=openjdk&logoColor=white)](https://shields.io/)
 [![Gradle](https://img.shields.io/badge/gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white)](https://shields.io/)
 [![Postgresql](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://shields.io/)
+[![Sentry](https://img.shields.io/badge/Sentry-black?style=for-the-badge&logo=Sentry&logoColor=#362D59)](https://shields.io/)
 --------
 
 Geo-Tools is a Java project that provides tools for geospatial data.  
