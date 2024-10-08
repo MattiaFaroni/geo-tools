@@ -1,69 +1,47 @@
 package com.geocode.search.service;
 
+import static com.geocode.search.message.Alert.*;
+
 import com.geocode.search.cli.Parameters;
+import com.geocode.search.logging.Logger;
 import com.geocode.search.service.input.Candidate;
 import com.geocode.search.service.intersect.GeoTool;
 import com.geocode.search.service.output.IntersectResult;
+import io.sentry.Sentry;
 import java.io.IOException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.opengis.feature.simple.SimpleFeature;
 
-public class Process implements Runnable {
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Process extends Logger implements Runnable {
 
 	private Parameters parameters;
 	private GeoTool geoTool;
 	private static int rowCount = 0;
 
-	public Parameters getParameters() {
-		return parameters;
-	}
-
-	public void setParameters(Parameters parameters) {
-		this.parameters = parameters;
-	}
-
-	public GeoTool getGeoTool() {
-		return geoTool;
-	}
-
-	public void setGeoTool(GeoTool geoTool) {
-		this.geoTool = geoTool;
-	}
-
-	public static int getRowCount() {
-		return rowCount;
-	}
-
-	public static void setRowCount(int rowCount) {
-		Process.rowCount = rowCount;
-	}
-
-	/**
-	 * Constructor
-	 * @param parameters input params
-	 * @param geoTool shapefile to use
-	 */
-	public Process(Parameters parameters, GeoTool geoTool) {
-		this.parameters = parameters;
-		this.geoTool = geoTool;
-	}
-
 	@Override
 	public void run() {
 		String line;
 		try {
-			while ((line = parameters.getFileConfiguration().getInputFile().readLine()) != null) {
+			while ((line = parameters.getFileSettings().getInputFile().readLine()) != null) {
 				executeIntersect(line);
 
 				rowCount++;
 				synchronized (this) {
 					if (rowCount % 1000 == 0) {
-						System.out.println("Processed records: " + rowCount);
+						printInfo("Processed records: " + rowCount);
 					}
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("Error when reading input csv file");
-			throw new RuntimeException(e);
+			printError(ERROR_READING_CSV.description, e.getMessage());
+			Sentry.captureException(e);
 		}
 	}
 
@@ -71,51 +49,55 @@ public class Process implements Runnable {
 	 * Method used to perform intersect on shapefile or database
 	 * @param line record of the input file to be processed
 	 */
+	// spotless:off
 	private void executeIntersect(String line) {
 		Candidate candidate = readCoordinates(line);
-		if (parameters.getIntersectModel().getIntersectType().equalsIgnoreCase("shapefile")) {
-			IntersectResult intersectResult =
-					geoTool.extractDataFromShapefile(candidate, parameters.getIntersectParameters());
-			generateShapefileOutput(intersectResult, line);
-		} else if (parameters.getIntersectModel().getIntersectType().equalsIgnoreCase("database")) {
-			IntersectResult intersectResult = geoTool.extractDataFromDatabase(
-					candidate,
-					parameters.getIntersectModel().getDatabaseConnection(),
-					parameters.getIntersectParameters().getCandidates(),
-					parameters.getIntersectModel().getIntersectData());
-			addDatabaseResultToFile(intersectResult, line);
+		IntersectResult intersectResult;
+
+		switch (parameters.getIntersectSettings().getIntersectType()) {
+			case "shapefile":
+				intersectResult = geoTool.extractDataFromShapefile(candidate, parameters.getIntersectParams());
+				generateShapefileOutput(intersectResult, line);
+				break;
+			case "database":
+				intersectResult = geoTool.extractDataFromDatabase(candidate, parameters.getIntersectSettings().getDatabaseConnection(), parameters.getIntersectParams().getCandidates(), parameters.getIntersectSettings().getIntersectData());
+				addDatabaseResultToFile(intersectResult, line);
+				break;
 		}
 	}
+	// spotless:on
 
 	/**
 	 * Method used to read the coordinates and type
 	 * @param line record of the input file to be processed
 	 * @return extracted candidate
 	 */
+	// spotless:off
 	private Candidate readCoordinates(String line) {
 		Candidate candidate = new Candidate();
-		String delimiter = parameters.getFileConfiguration().getDelimiter();
+		String delimiter = parameters.getFileSettings().getDelimiter();
 		if (delimiter.equals("|")) {
 			delimiter = "\\|";
 		}
 		String[] elements = line.split(delimiter);
+
 		try {
-			candidate.setCoordinateX(Double.parseDouble(
-					elements[parameters.getFileConfiguration().getColumnX()]));
+			candidate.setCoordinateX(Double.parseDouble(elements[parameters.getFileSettings().getColumnX()]));
 		} catch (Exception e) {
-			System.out.println("ERROR: invalid position or x coordinate");
+			printError(INVALID_COORDINATE_X_POSITION.description);
 			System.exit(1);
 		}
 		try {
-			candidate.setCoordinateY(Double.parseDouble(
-					elements[parameters.getFileConfiguration().getColumnY()]));
+			candidate.setCoordinateY(Double.parseDouble(elements[parameters.getFileSettings().getColumnY()]));
 		} catch (Exception e) {
-			System.out.println("ERROR: invalid position or y coordinate");
+			printError(INVALID_COORDINATE_Y_POSITION.description);
 			System.exit(1);
 		}
-		candidate.setCoordinateType(parameters.getFileConfiguration().getCoordinateType());
+
+		candidate.setCoordinateType(parameters.getFileSettings().getCoordinateType());
 		return candidate;
 	}
+	// spotless:on
 
 	/**
 	 * Method used to generate the output of the shapefile
@@ -128,11 +110,11 @@ public class Process implements Runnable {
 		if (!intersectResult.getShapeElements().isEmpty()) {
 			for (SimpleFeature simpleFeature : intersectResult.getShapeElements()) {
 
-				if (candidateNumber <= parameters.getIntersectParameters().getCandidates()) {
+				if (candidateNumber <= parameters.getIntersectParams().getCandidates()) {
 
-					for (String data : parameters.getIntersectModel().getIntersectData()) {
+					for (String data : parameters.getIntersectSettings().getIntersectData()) {
 						shapefileResult += simpleFeature.getAttribute(data);
-						shapefileResult += parameters.getFileConfiguration().getDelimiter();
+						shapefileResult += parameters.getFileSettings().getDelimiter();
 					}
 					candidateNumber++;
 
@@ -158,9 +140,9 @@ public class Process implements Runnable {
 			while (intersectResult.getDbElements().next()) {
 
 				String databaseResult = "";
-				for (String data : parameters.getIntersectModel().getIntersectData()) {
+				for (String data : parameters.getIntersectSettings().getIntersectData()) {
 					databaseResult += intersectResult.getDbElements().getString(data);
-					databaseResult += parameters.getFileConfiguration().getDelimiter();
+					databaseResult += parameters.getFileSettings().getDelimiter();
 				}
 
 				databaseResult = databaseResult.substring(0, databaseResult.length() - 1);
@@ -168,8 +150,10 @@ public class Process implements Runnable {
 				writeOutputToTheFile(inputRecord, databaseResult);
 			}
 			intersectResult.getDbElements().close();
+
 		} catch (Exception e) {
-			System.out.println("ERROR: extraction of data from the database failed. Description: " + e.getMessage());
+			printError(ERROR_EXTRACT_DATA_DATABASE.description, e.getMessage());
+			Sentry.captureException(e);
 			System.exit(1);
 		}
 	}
@@ -180,17 +164,18 @@ public class Process implements Runnable {
 	 * @return string to be reported in output
 	 */
 	private String generateInputRecord(String line) {
-		return line + parameters.getFileConfiguration().getDelimiter();
+		return line + parameters.getFileSettings().getDelimiter();
 	}
 
 	/**
 	 * Method used to generate output when nothing is found within the shapefile
 	 * @return string to be reported in output
 	 */
+	// spotless:off
 	private String generateOutputEmpty() {
-		return String.valueOf(parameters.getFileConfiguration().getDelimiter())
-				.repeat(parameters.getIntersectModel().getIntersectData().size() - 1);
+		return String.valueOf(parameters.getFileSettings().getDelimiter()).repeat(parameters.getIntersectSettings().getIntersectData().size() - 1);
 	}
+	// spotless:on
 
 	/**
 	 * Method used to report the result to the output file
@@ -199,10 +184,12 @@ public class Process implements Runnable {
 	 */
 	private void writeOutputToTheFile(String inputRecord, String reverseElements) {
 		try {
-			parameters.getFileConfiguration().getOutputFile().write(inputRecord + reverseElements + "\n");
-			parameters.getFileConfiguration().getOutputFile().flush();
+			parameters.getFileSettings().getOutputFile().write(inputRecord + reverseElements + "\n");
+			parameters.getFileSettings().getOutputFile().flush();
+
 		} catch (Exception e) {
-			System.out.println("ERROR: write to output file failed. Description: " + e.getMessage());
+			printError(ERROR_WRITE_FILE_OUTPUT.description, e.getMessage());
+			Sentry.captureException(e);
 			System.exit(1);
 		}
 	}
