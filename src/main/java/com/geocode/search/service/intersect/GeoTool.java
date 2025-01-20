@@ -33,17 +33,17 @@ import org.opengis.feature.simple.SimpleFeatureType;
 @NoArgsConstructor
 public class GeoTool extends Logger {
 
-	private static SimpleFeatureSource source;
-	private static SimpleFeatureType schema;
-	private static final Vector<SimpleFeatureSource> cachedSourceVect = new Vector<>();
-	private static final Vector<SimpleFeatureType> schemaVect = new Vector<>();
+    private static SimpleFeatureSource source;
+    private static SimpleFeatureType schema;
+    private static final Vector<SimpleFeatureSource> cachedSourceVect = new Vector<>();
+    private static final Vector<SimpleFeatureType> schemaVect = new Vector<>();
 
-	/**
-	 * Constructor
-	 * @param fileName shapefile name
-	 * @param activeCache cache enable flag
-	 */
-	// spotless:off
+    /**
+     * Constructor
+     * @param fileName shapefile name
+     * @param activeCache cache enable flag
+     */
+    // spotless:off
 	public GeoTool(String fileName, String activeCache) {
 
 		File file = new File(fileName);
@@ -71,13 +71,13 @@ public class GeoTool extends Logger {
 	}
 	// spotless:on
 
-	/**
-	 * Method used to project coordinates onto the shapefile
-	 * @param candidate candidate to be projected on the shapefile
-	 * @param intersectResult area to be enhanced
-	 * @return candidate extracted from the shapefile
-	 */
-	// spotless:off
+    /**
+     * Method used to project coordinates onto the shapefile
+     * @param candidate candidate to be projected on the shapefile
+     * @param intersectResult area to be enhanced
+     * @return candidate extracted from the shapefile
+     */
+    // spotless:off
 	public IntersectResult intersectShapefile(Candidate candidate, IntersectResult intersectResult) {
 
 		ShapeData shapeData = new ShapeData();
@@ -108,13 +108,13 @@ public class GeoTool extends Logger {
 	}
 	// spotless:on
 
-	/**
-	 * Method used to project coordinates onto the shapefile and extract n candidates
-	 * @param candidate candidate to be projected on the shapefile
-	 * @param intersectParams settings used for research
-	 * @return candidates extracted from the shapefile
-	 */
-	// spotless:off
+    /**
+     * Method used to project coordinates onto the shapefile and extract n candidates
+     * @param candidate candidate to be projected on the shapefile
+     * @param intersectParams settings used for research
+     * @return candidates extracted from the shapefile
+     */
+    // spotless:off
 	public IntersectResult extractDataFromShapefile(Candidate candidate, IntersectParams intersectParams) {
 
 		IntersectResult intersectResult = new IntersectResult();
@@ -153,15 +153,15 @@ public class GeoTool extends Logger {
 	}
 	// spotless:on
 
-	/**
-	 * Method used to project the coordinates onto the database and extract the specified columns
-	 * @param candidate candidate to be projected on the database
-	 * @param database database connection
-	 * @param limit number of candidates to extract
-	 * @param columns database columns
-	 * @return list of candidates close to the given point
-	 */
-	// spotless:off
+    /**
+     * Method used to project the coordinates onto the database and extract the specified columns
+     * @param candidate candidate to be projected on the database
+     * @param database database connection
+     * @param limit number of candidates to extract
+     * @param columns database columns
+     * @return list of candidates close to the given point
+     */
+    // spotless:off
 	public IntersectResult extractDataFromDatabase(Candidate candidate, Database database, double limit, ArrayList<String> columns) {
 		String query = "SELECT DISTINCT ";
 		for (String column : columns) {
@@ -185,51 +185,51 @@ public class GeoTool extends Logger {
 	}
 	// spotless:on
 
-	/**
-	 * Method used to project coordinates onto the database and extract n candidates given in the limit parameter
-	 * @param candidate candidate to be projected on the database
-	 * @param database database connection
-	 * @param limit number of candidates to extract
-	 * @return list of candidates close to the given point
-	 */
-	public IntersectResult extractDataFromDatabase(Candidate candidate, Database database, double limit) {
-		String query = "SELECT DISTINCT *,ST_Distance(geom,ST_SetSRID(ST_MakePoint("
-				+ candidate.getCoordinateX()
-				+ ","
-				+ candidate.getCoordinateY()
-				+ "),"
-				+ candidate.getCoordinateType()
-				+ ")) FROM "
-				+ database.getSchema()
-				+ ".\""
-				+ database.getTable()
-				+ "\" ORDER BY ST_Distance LIMIT "
-				+ limit
-				+ ";";
+    /**
+     * Method used to project coordinates onto the database and extract n candidates given in the limit parameter
+     * @param candidate candidate to be projected on the database
+     * @param database database connection
+     * @param limit number of candidates to extract
+     * @return list of candidates close to the given point
+     */
+    public IntersectResult extractDataFromDatabase(Candidate candidate, Database database, double limit) {
+        String query = "SELECT DISTINCT *,ST_Distance(geom,ST_SetSRID(ST_MakePoint("
+                + candidate.getCoordinateX()
+                + ","
+                + candidate.getCoordinateY()
+                + "),"
+                + candidate.getCoordinateType()
+                + ")) FROM "
+                + database.getSchema()
+                + ".\""
+                + database.getTable()
+                + "\" ORDER BY ST_Distance LIMIT "
+                + limit
+                + ";";
 
-		return executeIntersect(database, query);
-	}
+        return executeIntersect(database, query);
+    }
 
-	// TODO add a new method that allows you to set a maximum search radius on the database
+    // TODO add a new method that allows you to set a maximum search radius on the database
 
-	/**
-	 * Method used to extract data from the database
-	 * @param database database connection
-	 * @param query database query
-	 * @return list of candidates close to the given point
-	 */
-	private IntersectResult executeIntersect(Database database, String query) {
-		IntersectResult intersectResult = new IntersectResult();
-		try {
-			database.connect();
-			if (database.getConnection() != null) {
-				Statement stmt = database.getConnection().createStatement();
-				intersectResult.setDbElements(stmt.executeQuery(query));
-			}
-		} catch (Exception e) {
-			printError(ERROR_INTERSECT_DATABASE.description, e.getMessage());
-			Sentry.captureException(e);
-		}
-		return intersectResult;
-	}
+    /**
+     * Method used to extract data from the database
+     * @param database database connection
+     * @param query database query
+     * @return list of candidates close to the given point
+     */
+    private IntersectResult executeIntersect(Database database, String query) {
+        IntersectResult intersectResult = new IntersectResult();
+        try {
+            database.connect();
+            if (database.getConnection() != null) {
+                Statement stmt = database.getConnection().createStatement();
+                intersectResult.setDbElements(stmt.executeQuery(query));
+            }
+        } catch (Exception e) {
+            printError(ERROR_INTERSECT_DATABASE.description, e.getMessage());
+            Sentry.captureException(e);
+        }
+        return intersectResult;
+    }
 }

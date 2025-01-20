@@ -20,23 +20,23 @@ import org.postgresql.PGProperty;
 @AllArgsConstructor
 public class Database extends Logger {
 
-	private String url;
-	private String username;
-	private String password;
-	private String host;
-	private String port;
-	private String database;
-	private String schema;
-	private String table;
-	private Connection connection;
+    private String url;
+    private String username;
+    private String password;
+    private String host;
+    private String port;
+    private String database;
+    private String schema;
+    private String table;
+    private Connection connection;
 
-	/**
-	 * Constructor
-	 * @param url database connection url
-	 * @param username database username
-	 * @param password database password
-	 */
-	// spotless:off
+    /**
+     * Constructor
+     * @param url database connection url
+     * @param username database username
+     * @param password database password
+     */
+    // spotless:off
 	public Database(String url, String username, String password) {
 		this.url = url;
 		this.username = username;
@@ -58,28 +58,28 @@ public class Database extends Logger {
 	}
 	// spotless:on
 
-	/**
-	 * Method used to connect to postgresql database
-	 */
-	public void connect() {
-		connection = null;
-		try {
-			connection = DriverManager.getConnection(url, username, password);
-		} catch (Exception e) {
-			printError(ERROR_CONNECTION_TO_DATABASE.description, e.getMessage());
-			Sentry.captureException(e);
-		}
-	}
+    /**
+     * Method used to connect to postgresql database
+     */
+    public void connect() {
+        connection = null;
+        try {
+            connection = DriverManager.getConnection(url, username, password);
+        } catch (Exception e) {
+            printError(ERROR_CONNECTION_TO_DATABASE.description, e.getMessage());
+            Sentry.captureException(e);
+        }
+    }
 
-	/**
-	 * Method used to terminate the database connection
-	 */
-	public void closeConnection() {
-		try {
-			connection.close();
-		} catch (Exception e) {
-			printError(ERROR_CLOSE_DATABASE_CONNECTION.description, e.getMessage());
-			Sentry.captureException(e);
-		}
-	}
+    /**
+     * Method used to terminate the database connection
+     */
+    public void closeConnection() {
+        try {
+            connection.close();
+        } catch (Exception e) {
+            printError(ERROR_CLOSE_DATABASE_CONNECTION.description, e.getMessage());
+            Sentry.captureException(e);
+        }
+    }
 }

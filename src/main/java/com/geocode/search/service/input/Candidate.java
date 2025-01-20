@@ -11,18 +11,18 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Candidate {
 
-	private double coordinateX;
-	private double coordinateY;
-	private int coordinateType;
+    private double coordinateX;
+    private double coordinateY;
+    private int coordinateType;
 
-	/**
-	 * Constructor
-	 * @param coordinateX coordinate X
-	 * @param coordinateY coordinate Y
-	 */
-	public Candidate(double coordinateX, double coordinateY) {
-		this.coordinateX = coordinateX;
-		this.coordinateY = coordinateY;
-		this.coordinateType = 4326;
-	}
+    /**
+     * Constructor
+     * @param coordinateX coordinate X
+     * @param coordinateY coordinate Y
+     */
+    public Candidate(double coordinateX, double coordinateY) {
+        this.coordinateX = coordinateX;
+        this.coordinateY = coordinateY;
+        this.coordinateType = 4326;
+    }
 }

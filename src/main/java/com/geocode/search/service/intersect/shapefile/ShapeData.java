@@ -17,8 +17,8 @@ import org.opengis.filter.Filter;
 @AllArgsConstructor
 public class ShapeData {
 
-	private Filter filter;
-	private Query query;
-	private FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
-	private FeatureIterator<SimpleFeature> feature;
+    private Filter filter;
+    private Query query;
+    private FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
+    private FeatureIterator<SimpleFeature> feature;
 }

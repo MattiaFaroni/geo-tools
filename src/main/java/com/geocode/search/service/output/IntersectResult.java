@@ -14,6 +14,6 @@ import org.opengis.feature.simple.SimpleFeature;
 @AllArgsConstructor
 public class IntersectResult {
 
-	private HashSet<SimpleFeature> shapeElements = new HashSet<>();
-	private ResultSet dbElements;
+    private HashSet<SimpleFeature> shapeElements = new HashSet<>();
+    private ResultSet dbElements;
 }

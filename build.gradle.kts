@@ -50,8 +50,8 @@ tasks.shadowJar {
     }
 }
 
-val generatedVersionDir = "${buildDir}/generated-version"
-tasks.create("generateVersionProperties") {
+val generatedVersionDir = "${layout.buildDirectory.get()}/generated-version"
+tasks.register("generateVersionProperties") {
     doLast {
         val propertiesFile = File("$generatedVersionDir/build.properties")
         propertiesFile.parentFile.mkdirs()
@@ -62,8 +62,8 @@ tasks.create("generateVersionProperties") {
     }
 }
 
-val markdownDir = "${buildDir}/markdown"
-tasks.create("addMarkdownFile") {
+val markdownDir = "${layout.buildDirectory.get()}/markdown"
+tasks.register("addMarkdownFile") {
     doLast {
         File("$rootDir/CHANGELOG.md").copyTo(File(markdownDir).resolve("CHANGELOG.md"), true)
         File("$rootDir/LICENSE.md").copyTo(File(markdownDir).resolve("LICENSE.md"), true)
@@ -85,7 +85,6 @@ spotless {
         palantirJavaFormat()
         removeUnusedImports()
         trimTrailingWhitespace()
-        indentWithTabs()
         endWithNewline()
     }
 }

@@ -20,86 +20,86 @@ import lombok.Setter;
 @AllArgsConstructor
 public class FileSettings extends Logger {
 
-	private BufferedReader inputFile;
-	private String delimiter;
-	private String header;
-	private int columnX;
-	private int columnY;
-	private int coordinateType;
-	private FileWriter outputFile;
+    private BufferedReader inputFile;
+    private String delimiter;
+    private String header;
+    private int columnX;
+    private int columnY;
+    private int coordinateType;
+    private FileWriter outputFile;
 
-	/**
-	 * Method used to read yaml configuration parameters
-	 * @param yaml configuration properties
-	 * @return boolean value indicating whether the parameter is correct
-	 */
-	public boolean readConfigFromYaml(YamlStructure yaml) {
-		inputFile = getInputFile(yaml);
-		outputFile = getOutputFile(yaml);
+    /**
+     * Method used to read yaml configuration parameters
+     * @param yaml configuration properties
+     * @return boolean value indicating whether the parameter is correct
+     */
+    public boolean readConfigFromYaml(YamlStructure yaml) {
+        inputFile = getInputFile(yaml);
+        outputFile = getOutputFile(yaml);
 
-		boolean correctSettings = false;
+        boolean correctSettings = false;
 
-		if (inputFile != null && outputFile != null) {
-			if (checkDelimiter(yaml) && checkHeader(yaml)) {
-				getCoordinatesInfo(yaml);
-				correctSettings = true;
-			}
-		}
+        if (inputFile != null && outputFile != null) {
+            if (checkDelimiter(yaml) && checkHeader(yaml)) {
+                getCoordinatesInfo(yaml);
+                correctSettings = true;
+            }
+        }
 
-		return correctSettings;
-	}
+        return correctSettings;
+    }
 
-	/**
-	 * Method used to access the input file
-	 * @param yaml configuration properties
-	 * @return file to read
-	 */
-	private BufferedReader getInputFile(YamlStructure yaml) {
-		try {
-			return new BufferedReader(new FileReader(yaml.getInputFile(), StandardCharsets.UTF_8));
-		} catch (Exception e) {
-			printError(INPUT_PATH_INVALID.description);
-			Sentry.captureException(e);
-			return null;
-		}
-	}
+    /**
+     * Method used to access the input file
+     * @param yaml configuration properties
+     * @return file to read
+     */
+    private BufferedReader getInputFile(YamlStructure yaml) {
+        try {
+            return new BufferedReader(new FileReader(yaml.getInputFile(), StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            printError(INPUT_PATH_INVALID.description);
+            Sentry.captureException(e);
+            return null;
+        }
+    }
 
-	/**
-	 * Method used to access the output file
-	 * @param yaml configuration properties
-	 * @return file to write to
-	 */
-	private FileWriter getOutputFile(YamlStructure yaml) {
-		try {
-			return new FileWriter(yaml.getOutputFile(), StandardCharsets.UTF_8);
-		} catch (Exception e) {
-			printError(OUTPUT_FILE_INVALID.description);
-			Sentry.captureException(e);
-			return null;
-		}
-	}
+    /**
+     * Method used to access the output file
+     * @param yaml configuration properties
+     * @return file to write to
+     */
+    private FileWriter getOutputFile(YamlStructure yaml) {
+        try {
+            return new FileWriter(yaml.getOutputFile(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            printError(OUTPUT_FILE_INVALID.description);
+            Sentry.captureException(e);
+            return null;
+        }
+    }
 
-	/**
-	 * Method used to check if the delimiter is valid
-	 * @param yaml configuration properties
-	 * @return boolean value indicating whether the parameter is correct
-	 */
-	private boolean checkDelimiter(YamlStructure yaml) {
-		if (yaml.getDelimiter() != null && !yaml.getDelimiter().isEmpty()) {
-			delimiter = yaml.getDelimiter();
-			return true;
-		} else {
-			printError(DELIMITER_INVALID.description);
-			return false;
-		}
-	}
+    /**
+     * Method used to check if the delimiter is valid
+     * @param yaml configuration properties
+     * @return boolean value indicating whether the parameter is correct
+     */
+    private boolean checkDelimiter(YamlStructure yaml) {
+        if (yaml.getDelimiter() != null && !yaml.getDelimiter().isEmpty()) {
+            delimiter = yaml.getDelimiter();
+            return true;
+        } else {
+            printError(DELIMITER_INVALID.description);
+            return false;
+        }
+    }
 
-	/**
-	 * Method used to check if the header is valid
-	 * @param yaml configuration properties
-	 * @return boolean value indicating whether the parameter is correct
-	 */
-	// spotless:off
+    /**
+     * Method used to check if the header is valid
+     * @param yaml configuration properties
+     * @return boolean value indicating whether the parameter is correct
+     */
+    // spotless:off
 	private boolean checkHeader(YamlStructure yaml) {
 		if (yaml.getHeader() != null && !yaml.getHeader().isEmpty()
 				&& (yaml.getHeader().equalsIgnoreCase("S")
@@ -114,13 +114,13 @@ public class FileSettings extends Logger {
 	}
 	// spotless:on
 
-	/**
-	 * Method used to get the information about coordinates
-	 * @param yaml configuration properties
-	 */
-	private void getCoordinatesInfo(YamlStructure yaml) {
-		columnX = yaml.getColumnX();
-		columnY = yaml.getColumnY();
-		coordinateType = yaml.getCoordinateType();
-	}
+    /**
+     * Method used to get the information about coordinates
+     * @param yaml configuration properties
+     */
+    private void getCoordinatesInfo(YamlStructure yaml) {
+        columnX = yaml.getColumnX();
+        columnY = yaml.getColumnY();
+        coordinateType = yaml.getCoordinateType();
+    }
 }

@@ -19,34 +19,34 @@ import lombok.Setter;
 @AllArgsConstructor
 public class IntersectSettings extends Logger {
 
-	private String intersectType;
-	private ArrayList<String> intersectData = new ArrayList<>();
-	private File shapefilePath;
-	private Database databaseConnection;
+    private String intersectType;
+    private ArrayList<String> intersectData = new ArrayList<>();
+    private File shapefilePath;
+    private Database databaseConnection;
 
-	/**
-	 * Method used to read yaml configuration parameters
-	 * @param yaml configuration properties
-	 * @return boolean value indicating whether the parameter is correct
-	 */
-	public boolean readConfigFromYaml(YamlStructure yaml) {
-		boolean correctSettings = false;
+    /**
+     * Method used to read yaml configuration parameters
+     * @param yaml configuration properties
+     * @return boolean value indicating whether the parameter is correct
+     */
+    public boolean readConfigFromYaml(YamlStructure yaml) {
+        boolean correctSettings = false;
 
-		if (checkIntersectType(yaml) && checkIntersectData(yaml)) {
-			correctSettings = switch (intersectType) {
-				case "shapefile" -> checkShapefilePath(yaml);
-				case "database" -> checkDatabaseConnection(yaml);
-				default -> false;};
-		}
-		return correctSettings;
-	}
+        if (checkIntersectType(yaml) && checkIntersectData(yaml)) {
+            correctSettings = switch (intersectType) {
+                case "shapefile" -> checkShapefilePath(yaml);
+                case "database" -> checkDatabaseConnection(yaml);
+                default -> false;};
+        }
+        return correctSettings;
+    }
 
-	/**
-	 * Method used to check if the intersect type is valid
-	 * @param yaml configuration properties
-	 * @return boolean value indicating whether the parameter is correct
-	 */
-	// spotless:off
+    /**
+     * Method used to check if the intersect type is valid
+     * @param yaml configuration properties
+     * @return boolean value indicating whether the parameter is correct
+     */
+    // spotless:off
 	private boolean checkIntersectType(YamlStructure yaml) {
 		YamlStructure.IntersectConf intersectConf = yaml.getIntersect();
 
@@ -60,52 +60,52 @@ public class IntersectSettings extends Logger {
 	}
 	// spotless:on
 
-	/**
-	 * Method used to check if the intersect data is valid
-	 * @param yaml configuration properties
-	 * @return boolean value indicating whether the parameter is correct
-	 */
-	private boolean checkIntersectData(YamlStructure yaml) {
-		YamlStructure.IntersectConf intersectConf = yaml.getIntersect();
+    /**
+     * Method used to check if the intersect data is valid
+     * @param yaml configuration properties
+     * @return boolean value indicating whether the parameter is correct
+     */
+    private boolean checkIntersectData(YamlStructure yaml) {
+        YamlStructure.IntersectConf intersectConf = yaml.getIntersect();
 
-		if (intersectConf.getData() != null && !intersectConf.getData().isEmpty()) {
-			Collections.addAll(intersectData, intersectConf.getData().split(","));
-			return true;
-		} else {
-			printError(INTERSECT_DATA_INVALID.description);
-			return false;
-		}
-	}
+        if (intersectConf.getData() != null && !intersectConf.getData().isEmpty()) {
+            Collections.addAll(intersectData, intersectConf.getData().split(","));
+            return true;
+        } else {
+            printError(INTERSECT_DATA_INVALID.description);
+            return false;
+        }
+    }
 
-	/**
-	 * Method used to check if the shapefile path is valid
-	 * @param yaml configuration properties
-	 * @return boolean value indicating whether the parameter is correct
-	 */
-	private boolean checkShapefilePath(YamlStructure yaml) {
-		YamlStructure.ShapefileConf shapefileConf = yaml.getIntersect().getShapefile();
+    /**
+     * Method used to check if the shapefile path is valid
+     * @param yaml configuration properties
+     * @return boolean value indicating whether the parameter is correct
+     */
+    private boolean checkShapefilePath(YamlStructure yaml) {
+        YamlStructure.ShapefileConf shapefileConf = yaml.getIntersect().getShapefile();
 
-		if (shapefileConf.getPath() != null && !shapefileConf.getPath().isEmpty()) {
-			shapefilePath = new File(shapefileConf.getPath());
+        if (shapefileConf.getPath() != null && !shapefileConf.getPath().isEmpty()) {
+            shapefilePath = new File(shapefileConf.getPath());
 
-			if (shapefilePath.exists() && !shapefilePath.isDirectory()) {
-				return true;
-			} else {
-				printError(SHAPEFILE_PATH_INVALID.description);
-				return false;
-			}
-		} else {
-			printError(SHAPEFILE_PATH_INVALID.description);
-			return false;
-		}
-	}
+            if (shapefilePath.exists() && !shapefilePath.isDirectory()) {
+                return true;
+            } else {
+                printError(SHAPEFILE_PATH_INVALID.description);
+                return false;
+            }
+        } else {
+            printError(SHAPEFILE_PATH_INVALID.description);
+            return false;
+        }
+    }
 
-	/**
-	 * Method used to check if the database connection is valid
-	 * @param yaml configuration properties
-	 * @return boolean value indicating whether the parameter is correct
-	 */
-	// spotless:off
+    /**
+     * Method used to check if the database connection is valid
+     * @param yaml configuration properties
+     * @return boolean value indicating whether the parameter is correct
+     */
+    // spotless:off
 	private boolean checkDatabaseConnection(YamlStructure yaml) {
 		YamlStructure.DatabaseConf databaseConf = yaml.getIntersect().getDatabase();
 
