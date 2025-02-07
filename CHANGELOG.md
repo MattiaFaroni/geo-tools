@@ -1,3 +1,13 @@
+## Version 1.0.2
+### 2025-02-07
+- Sentry 5.1.0
+- Gradle 8.12
+- Log4j 2.24.3
+- Spotless 7.0.2
+- Lombok 1.18.36
+- Postgresql 42.7.4
+- Jackson-dataformat-yaml 2.18.2
+
 ## Version 1.0.1
 ### 2024-10-07
 - Added exception catching via Sentry
