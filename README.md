@@ -29,12 +29,12 @@ Initializing the `IntersectParames` class you can configure the following variab
 | candidates   | 1             | Maximum number of candidates drawn         |
 | maxDistance  | 50            | Maximum search radius                      |
 
-In order to perform data extraction, it is necessary to indicate the path where the shapefile to be processed is located.  
-Otherwise if the data is within a postgis database you need to know the database url, username and password.  
-The database connection url must be in the following format: **jdbc:postgresql://host:porta/database?currentSchema=table,schema**  
+If you want to extract data from shapefiles, you just need to indicate the location of these files.
+Otherwise, if you want to use a database, you need to know the information to access it.  
+The database connection url must be in the following format:   
+**jdbc:postgresql://host:porta/database?currentSchema=table,schema**  
 
-You can also catch any exceptions through the Sentry configuration.  
-Just set the "dsn" environment variable with the URL of the project on Sentry.
+You can also catch any exceptions through the Sentry configuration. Just configure the "dsn" environment variable specifying the project url on Sentry.
 
 ## CLI
 This project can be run from the command line and information can be extracted from the postgis database or from the shapefile given a list of coordinates as input. 
