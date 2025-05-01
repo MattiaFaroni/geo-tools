@@ -9,7 +9,7 @@ plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("com.diffplug.spotless") version "7.0.2"
-    id("io.sentry.jvm.gradle") version "5.3.0"
+    id("io.sentry.jvm.gradle") version "5.4.0"
 }
 
 group = "com.geocode.search"
