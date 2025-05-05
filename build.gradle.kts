@@ -8,8 +8,8 @@ val log4jVersion: String by project
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("com.diffplug.spotless") version "7.0.2"
-    id("io.sentry.jvm.gradle") version "5.3.0"
+    id("com.diffplug.spotless") version "7.0.3"
+    id("io.sentry.jvm.gradle") version "5.4.0"
 }
 
 group = "com.geocode.search"
@@ -32,7 +32,7 @@ dependencies {
     implementation("org.geotools:gt-geojson-store:$geotoolsVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("commons-cli:commons-cli:1.9.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.3")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.0")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
