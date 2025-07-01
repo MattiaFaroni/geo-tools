@@ -32,7 +32,7 @@ dependencies {
     implementation("org.geotools:gt-geojson-store:$geotoolsVersion")
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("commons-cli:commons-cli:1.9.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.1")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
